@@ -1,0 +1,55 @@
+package com.project2.admin;
+
+import java.util.Scanner;
+
+import com.project2.main.AdminDTO;
+
+public class AdminController {
+
+	// 메인 객체가 업무를 분산시키기 위해 사용하는 위임 객체
+	// 1.View 객체
+	// 2.Service 객체
+
+	private AdminView view;
+	private AdminIService service;
+	private Scanner scan;
+
+	public AdminController() {
+
+		view = new AdminView();
+		service = new AdminService();
+		scan = new Scanner(System.in);
+
+	}
+
+	public void subMain() {
+		AdminDTO admin = login();
+		view.begin();
+
+		boolean loop = true;
+		if(admin=null )
+		while (loop) {
+
+			view.menu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				service.teacheraccountmng();
+			else if (sel.equals("2"))
+				service.opencourse_subjectmng();
+			else if (sel.equals("3"))
+				service.studentmng();
+			else if (sel.equals("4"))
+				service.attendancemng();
+			else if (sel.equals("5"))
+				service.testmng_scorecheck();
+			else
+				loop = false;
+		}
+
+		view.end();
+
+	}
+
+}

@@ -1,0 +1,352 @@
+package com.project2.student;
+
+import java.util.ArrayList;
+
+import com.project2.main.RoomDTO;
+import com.project2.main.StudentDTO;
+import com.project2.main.StudyDTO;
+import com.project2.main.UserScanner;
+
+public class StudentService implements StudentIService {
+
+	private StudentView view;
+	private UserScanner scan;
+	private StudentDAO dao;
+	private static final int PAGESIZE = 20;
+	public StudentService() {
+		view = new StudentView();
+		scan = new UserScanner();
+		dao = new StudentDAO();
+	}
+
+	@Override
+	public StudentDTO login() {// 특정 학생의 로그인
+
+		ArrayList<StudentDTO> studentList = dao.studentList();//모든 학생의정보
+		
+		boolean loop = true;
+		StudentDTO student = null;
+
+		while (loop) {
+			view.title(StudentView.LOGIN);
+			
+			System.out.print("아이디(이름) : ");
+			String id = scan.nextLine();
+
+			System.out.print("비밀번호(주민번호뒷자리) : ");
+			String pw = scan.nextLine();
+
+			for (StudentDTO stl : studentList) {
+				if (stl.getName().equals(id) && stl.getSsn().substring(7).equals(pw)) {// 해당 아이디,비밀번호의 회원이 있으면
+
+					
+					student = stl;// 로그인한 학생의 정보를 DTO자료형의 student에 넣는다.
+
+					loop = false;//while문을 나가기위해 false
+
+					view.loginSucess();
+					view.pause();
+
+					break;//원하는값얻었으니 for문 탈출
+				}//if
+
+			} // for
+
+			if (student == null) {//만약 일치하는 회원이없으면(정보가 안담긴 null)
+				view.menu(StudentView.LOGIN);//다시입력하려면 엔터키 나갈려면 0번
+				String sel = scan.nextLine();
+
+				if (sel.equals("0")) {//0번이면 false로 while문 탈출
+					loop = false;
+				}//if
+			}//if
+
+		} // while
+
+		return student;//안돌려주면 오류남..
+	}
+
+	@Override
+	public void info(StudentDTO student) {// 1 학생의 개인정보 
+
+		view.title(StudentView.INFO);
+		//이건 여기서 출력하는게 맞다고 판단된다!!! 인자값을 넘길순없잖아아아 ~~
+		System.out.printf("이름 : %s\n",student.getName());
+		System.out.printf("주민번호 : %s\n",student.getSsn());
+		System.out.printf("전화번호 : %s\n",student.getTel());
+		System.out.printf("주소 : %s\n",student.getAddress());
+		System.out.printf("가입날짜 : %s\n",student.getRegdate());
+		
+		view.pause();
+	}
+
+	@Override
+	public void lesson(String seq) {// 2
+	
+		ArrayList<StudentCourseDTO> courseList = dao.courseList(seq);
+		
+		boolean loop = true;
+		while (loop) {
+			view.title(StudentView.LESSON);
+			
+			
+			
+			for (int i = 0; i < courseList.size(); i++) {
+				StudentCourseDTO dto = courseList.get(i);
+				System.out.printf("[%d] %s %s %s %s %s %s\n"
+						,i+1,dto.getTitle(),dto.getStatus(),dto.getBegindate(),dto.getEnddate()
+						,dto.getTotalPeople(),dto.getRoom());
+			}
+			
+			
+			if(courseList.size()>=1) {//size가 있으면!!
+				view.menu(StudentView.LESSON);
+				
+				try {
+					int num = scan.nextInt();
+	
+					if (num == 0) {
+						loop = false;
+					} else {
+						subject(courseList.get(num-1));
+					}
+	
+				} catch (Exception e) {
+					view.pauseBack();
+				}
+
+			}else {
+				System.out.println("해당 학생이 수강한(했던) 과정이 없습니다.");
+				view.pause();
+				loop = false;
+				
+			}
+			
+		} // while
+
+	}// lesson
+	
+	
+//---------------------------------
+	private void subject(StudentCourseDTO course) {// 2-1
+
+		view.title(StudentView.SUBJECT);
+		
+		ArrayList<StudentSubjectDTO> subject =  dao.subjectList(course);
+		
+		if(subject.size()>=1) {
+			for (StudentSubjectDTO dto : subject) {
+				System.out.printf("%s %s %s %s %s %s\n"
+						,dto.getTitle()
+						,dto.getSilPoint(), dto.getPilPoint(), dto.getAttendPoint()
+						,dto.getBeigndate(),dto.getEnddate());
+			}
+		}else {
+			System.out.println("해당 과목이없습니다.??? 과정이있는데 이런일이 발생할수있나?");
+		}
+		
+		view.pause();
+
+	}
+//-------------------------------------
+
+	
+	@Override
+	public void attended(String seq) {// 3
+		
+		ArrayList<StudentAttendDTO> attend = dao.attendedList(seq);; 
+		
+				
+		boolean loop = true;
+
+		if(attend.size()>=1 && attend.size()<=PAGESIZE) {
+			
+			attendedDetail(attend, 0, 0);
+			
+			view.pause();
+		}else if(attend.size()>PAGESIZE){
+			int tail = (attend.size()%PAGESIZE) != 0 ? 1 : 0; 
+					
+			attendedDetail(attend, 1, tail);
+			while (loop) {
+				
+				view.menu(StudentView.ATTEND);// 선택해!!
+				
+				try {
+					int num = scan.nextInt();
+					
+					if (num==0) {
+						loop = false;
+						view.pause();
+					} else if (num>0 && num <= attend.size()/PAGESIZE + tail) {
+						attendedDetail(attend, num, tail);
+					} else {
+						view.pauseBack();
+					}
+				} catch (Exception e) {
+					view.pauseBack();
+				}
+			}
+		}else {
+			view.title(StudentView.ATTEND);
+			System.out.println("출결한 기록이 없습니다.");
+			view.pause();
+		}
+		
+	}
+
+	private void attendedDetail(ArrayList<StudentAttendDTO> attend, int n, int tail) {
+		view.title(StudentView.ATTEND);
+		
+		if(n==0) {
+			for (int i = 0; i < attend.size(); i++) {
+				StudentAttendDTO dto = attend.get(i);
+				System.out.printf("%s %s %s %s\n"
+						,dto.getIntime(), dto.getOutime()
+						,dto.getStatus(), dto.getCourseTitle());
+			}
+		}else if(n==attend.size()/PAGESIZE + tail) {
+			for (int i = PAGESIZE*(n-1); i < attend.size(); i++) {
+				StudentAttendDTO dto = attend.get(i);
+				System.out.printf("%s %s %s %s\n"
+						,dto.getIntime(), dto.getOutime()
+						,dto.getStatus(), dto.getCourseTitle());
+			}
+			System.out.printf("%02d/%02d\n",n,attend.size()/PAGESIZE+tail);
+		}else {
+			for (int i = PAGESIZE*(n-1); i < PAGESIZE*n; i++) {
+				StudentAttendDTO dto = attend.get(i);
+				System.out.printf("%s %s %s %s\n"
+						,dto.getIntime(), dto.getOutime()
+						,dto.getStatus(), dto.getCourseTitle());
+			}
+			System.out.printf("%02d/%02d\n",n,attend.size()/PAGESIZE+tail);
+		}
+		
+	}
+
+	@Override
+	public void inputAttend(String seq) { 
+
+		view.title(StudentView.INPUT);
+		
+		String io = dao.checkAttend(seq);//출력용 SELECT문
+		int check = dao.inputAttend(seq);//실질적 출석 UPDATE문
+	
+		if(check!=0) {
+			System.out.printf("%d행이 업데이트 됬습니다. or 출석 성공\n",check);
+			System.out.println(io);
+		}else {
+			System.out.println("출석 실패");
+		}
+		
+		view.pause();
+
+	}
+	@Override
+	public StudyDTO leaderLogin(String seq) {
+		return dao.leaderLogin(seq); //해당 스터디 자체를 가져올까요???
+		
+	}
+
+	@Override
+	public void leader(StudyDTO leader) {
+		
+		boolean loop = true;
+		while(loop) {
+			view.title(StudentView.LEADER);
+			
+			ArrayList<StudentRoomStatusDTO> rentList = dao.leader();
+			ArrayList<RoomDTO> roomList = dao.leaderRoomList();
+			boolean check = true;
+			
+			System.out.println("[불가능]");
+			for (StudentRoomStatusDTO rent : rentList) {
+				System.out.printf("%s %s\n"
+						,rent.getRoomtitle(), rent.getStudytitle());
+				
+				if(rent.getStudyseq().equals(leader.getSeq())) {
+					check = false;//만약 이미 빌린 전적이있으면 못빌림!!
+					break; //해도되고 안해도되고
+				}
+			}
+			System.out.println();
+			
+			if(roomList.size()<1||check==false) {
+				System.out.println("빌릴 수 있는 강의실이 없습니다.");
+				view.pause();
+				loop = false;
+			}else {
+				
+				System.out.println("[가능]");
+				for (int i=0; i<roomList.size(); i++) {
+					RoomDTO room = roomList.get(i);
+					System.out.printf("[%s] %s %s\n"
+							,i+1 ,room.getName(), room.getLimit());
+				}
+				
+				view.menu(StudentView.ROOM);
+				try {
+					
+					int num = scan.nextInt();	
+					
+					if(num==0) {
+						loop = false;
+					}else if(num>0 && num<=roomList.size()){
+						studyRoomRent(leader, roomList.get(num-1));
+						loop = false;
+						
+					}else {
+						view.pauseBack();
+					}
+					
+						
+				} catch (Exception e) {
+					view.pauseBack();
+				}	
+			}//else 강의실을 빌릴수 있을때
+			
+		}//while
+		
+	}
+
+	private void studyRoomRent(StudyDTO leader, RoomDTO room) {
+		
+		int result = dao.studyRoomRent(room.getSeq(), leader.getSeq());
+		if(result != 0) {
+			System.out.printf("스터디 : [%s]", leader.getName() );
+			System.out.printf("[%s]을 빌립니다.",room.getName() );
+			System.out.println("강의실 빌리기 성공!!!!!!!");
+		}else {
+			System.out.println("빌리는데 실패했습니다!!");
+		}
+		
+		
+		view.pause();
+	}
+
+	@Override
+	public void followers(String seq) {
+		StudyDTO dto = dao.followers(seq);
+		
+		if(dto!= null) {
+			
+			StudentRoomStatusDTO check = dao.followersStudyCheck(dto);
+			if(check!= null) {
+				System.out.printf("%s은(는) 오늘 %s에 예약입니다", check.getStudytitle(), check.getRoomtitle());
+			}else {
+				System.out.printf("스터디 [%s]은(는) 오늘 예약한 강의실이 없습니다.\n",dto.getName());
+			}
+			
+		}else {
+			System.out.println("수강중인 스터디가 없습니다 관리자에게 문의하여 수강을 신청하세요!");
+			
+		}
+		
+		view.pause();
+		
+	}
+
+	
+	
+}

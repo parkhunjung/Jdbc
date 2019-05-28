@@ -1,0 +1,98 @@
+package com.test.jdbc;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+
+import oracle.jdbc.OracleTypes;
+
+public class Ex08_CallableStatement {
+	
+	private static Connection conn;
+	private static CallableStatement cstat;
+	
+	static {
+		DBUtil util = new DBUtil();
+		conn = util.connect();
+	}
+	
+	public static void main(String[] args) {
+		
+		//1. Statement : 정적 쿼리
+		//2. PreparedStatement : 동적 쿼리
+		//3. CallableStatement : 프로시저 호출 전용
+		
+//		m1();
+		m2();
+	}
+
+	private static void m2() {
+		
+		//procCompleteTodo(in 수정할 번호, out 결과)
+		try {
+			
+			String sql = "{ call procCompelteTodo(?, ?) }";
+			
+			cstat = conn.prepareCall(sql);
+			
+			cstat.setString(1, "20");
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+	}
+
+	private static void m1() {
+		
+		//proAddTodo
+		// - in : ptitle(VARCHAR2)
+		// - OUT : presult(num)
+		
+		try {
+			
+			String sql = "{ call procAddTodo(?, ?) }";
+			
+			cstat = conn.prepareCall(sql);
+			
+			//in 매개변수
+			cstat.setString(1, "할일 제목");
+			
+			//out 매개변수
+			cstat.registerOutParameter(2, OracleTypes.NUMBER);
+			
+			cstat.executeQuery();
+			
+			//받아오기로 한 값 > out 매개변수(<> ResultSet)
+			int result = cstat.getInt(2);
+			
+			System.out.println(result);
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+	}
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

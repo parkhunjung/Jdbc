@@ -1,0 +1,10 @@
+package com.project2.main;
+
+public class AdminDTO {
+	private String seq;
+	private String name;
+	private String ssn;
+	private String tel;
+	private String address;
+	private String regdate;
+}

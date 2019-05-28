@@ -1,0 +1,10 @@
+package project.starcraft.play;
+
+public class StarPlay {
+	public static void main(String[] args) {
+		
+		
+		
+		
+	}
+}

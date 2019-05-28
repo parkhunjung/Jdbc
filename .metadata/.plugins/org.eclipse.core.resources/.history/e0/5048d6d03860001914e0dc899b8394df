@@ -1,0 +1,16 @@
+package com.project2.admin;
+
+public class AdminStudentSearchDTO {
+	
+	private String name;
+	private String ssn;
+	private String tel;
+	private String address;
+	private String learningCourse;
+	private String coursePeriod;
+	private String roomName;
+	private String ing;
+	private String ingdate;
+	private String status;
+	
+}

@@ -1,0 +1,54 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Scanner;
+
+public class Ex04_Statement {
+	public static void main(String[] args) {
+		
+		
+		//고정값 INSERT > 입력값 INSERT : 동적 쿼리
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		Scanner scan = new Scanner(System.in);
+		
+		
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

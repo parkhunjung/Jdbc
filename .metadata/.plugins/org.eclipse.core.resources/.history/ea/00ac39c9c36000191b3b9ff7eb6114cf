@@ -1,0 +1,1084 @@
+package com.project2.admin;
+
+import java.util.ArrayList;
+
+import com.project2.main.AdminDTO;
+import com.project2.main.BookDTO;
+import com.project2.main.CourseDTO;
+import com.project2.main.CourseSubjectDTO;
+import com.project2.main.CourseTitleDTO;
+import com.project2.main.LearningDTO;
+import com.project2.main.StudentDTO;
+import com.project2.main.SubjectDTO;
+import com.project2.main.TeacherDTO;
+import com.project2.main.UserScanner;
+
+public class AdminSubService {
+
+	private AdminView view;
+	private UserScanner scan;
+	private AdminDTO aDto;
+	private AdminDAO dao;
+	private TeacherDTO tdto;
+	
+	public AdminSubService() {
+		this.view = new AdminView();
+		this.scan = new UserScanner();
+		this.aDto = new AdminDTO();
+		dao = new AdminDAO();
+		tdto = new TeacherDTO();
+		
+	}
+
+	public void add() {
+
+		boolean loop = true;
+
+		while (loop) {
+			view.title(AdminView.ADD);
+			System.out.println("교사 정보 입력 메뉴 입니다.");
+
+			System.out.print("이름 : ");
+			String name = scan.nextLine();
+			name = name.replace("'", "''");
+
+			System.out.print("주민번호 : ");
+			String ssn = scan.nextLine();
+			ssn = ssn.replace("'", "''");
+
+			System.out.print("전화번호 : ");
+			String tel = scan.nextLine();
+			tel = tel.replace("'", "''");
+
+			System.out.print("주소지 : ");
+			String address = scan.nextLine();
+			address = address.replace("'", "''");
+
+			tdto.setName(name);
+			tdto.setSsn(ssn);
+			tdto.setTel(tel);
+			tdto.setAddress(address);
+
+			int result = dao.add(tdto);
+
+			dao.close();
+
+			if (result == 1) {
+				System.out.println("교사 정보 추가 완료");
+			} else {
+				System.out.println("교사 정보 추가 실패");
+
+			}
+
+			// 1. DAO 생성
+			// 1.5 DTO 생성(TeacherDTO dto = new TeacherDTO()); //상자
+			// 1.6 dto -> 4개 값 대입
+			// 2. int result = dao.add(dto);
+			// 3. result -> message
+
+			view.pause();
+			loop = false;
+
+		} // loop
+
+	}
+
+///////////////////////////////////////////////////////////////////
+	public void tEdit() {
+		
+
+		view.title(AdminView.EDIT);
+		System.out.println("교사 정보 수정 메뉴 입니다.");
+		view.teachertitle(AdminView.EDIT);
+		ArrayList<TeacherDTO> list = dao.tlist();
+
+		for (TeacherDTO dto : list) {
+			System.out.printf("%s\t%s\t%s\t%s\n", dto.getSeq(), dto.getName(), dto.getTel(), dto.getAddress());
+		}
+		System.out.print("수정할 번호 : ");
+		String seq = scan.nextLine();
+
+		TeacherDTO dto = dao.get(seq);
+
+		String name = "";
+		String tel = "";
+		String address = "";
+
+		if (dto != null) {
+			name = dto.getName();
+			tel = dto.getTel();
+			address = dto.getAddress();
+		}
+		System.out.println("바꾸기 싫으면 엔터키를 입력하세요!");
+
+		System.out.println("이름 : " + name);
+		System.out.print("새로운 이름 : ");
+		String temp = scan.nextLine();
+		if (!temp.equals("")) {
+			name = temp;
+			name = name.replace("'", "''");
+		} else {
+		}
+		System.out.println("기존 전화번호 : " + tel);
+		System.out.print("새로운 전화번호 : ");
+		temp = scan.nextLine();
+		if (!temp.equals("")) {
+			tel = temp;
+			tel = tel.replace("'", "''");
+		}
+		System.out.println("기존 주소 : " + address);
+		System.out.print("새로운 주소 : ");
+		temp = scan.nextLine();
+		if (!temp.equals("")) {
+			address = temp;
+			address = address.replace("'", "''");
+		}
+		dto = new TeacherDTO();
+		dto.setSeq(seq);
+		dto.setName(name);
+		dto.setTel(tel);
+		dto.setAddress(address);
+
+		int result = dao.edit(dto);
+
+		if (result == 1) {
+			System.out.println("교사 정보 수정 완료");
+		} else {
+			System.out.println("교사 정보 수정 실패");
+		}
+
+		view.pause();
+		
+
+	}
+////////////////////////////////////////////////////////////////////
+	
+
+	public void tDel() {
+
+		view.title(AdminView.LIST);
+		System.out.println("교사 정보 입니다.");
+		view.teachertitle(AdminView.LIST);
+		ArrayList<TeacherDTO> list = dao.tlist();
+
+		for (TeacherDTO dto : list) {
+			System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\n", dto.getSeq(), dto.getName(), dto.getSsn(), dto.getTel(),
+					dto.getAddress(), dto.getDelete_status());
+		}
+
+		System.out.print("교사 정보를 삭제하시겠습니까? (y / n) : ");
+		String del = scan.nextLine();
+		
+		if(del.equals("y")) {
+			System.out.print("삭제할 번호: ");
+			String seq = scan.nextLine();
+			System.out.println("[탈퇴]");
+	
+			int result = dao.del(seq);
+	
+			if (result == 1) {
+				System.out.println("탈퇴가 성공하였습니다.");
+			} else {
+				System.out.println("교사 정보 삭제 실패");
+	
+			}
+			
+		} else if(del.equals("n")) {
+			System.out.println("정보 보기를 종료합니다.");
+		}
+
+		
+		view.pause();
+
+	}
+
+	public void scoreADD() {
+
+
+		boolean loop = true;
+
+		while (loop) {
+
+			view.testmng_scoreChecktitle(AdminView.ADD);
+			
+			view.scoreAddmenu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1")) {
+				pilgiADD();
+			} else if (sel.equals("2")) {
+				silgiAdd();
+			} else if (sel.equals("0")){
+				loop = false;
+			} else {
+				System.out.println("잘못된입력입니다. 다시입력해주세요.");
+			}
+		}
+
+	}
+	
+	/*헌정*/
+	private void silgiAdd() {
+		
+		AdminDAO aDao = new AdminDAO();
+		
+		int cnt = aDao.courseCnt();
+		
+		boolean temp = true;
+		
+		//while 문을 추가하기 전까지는 pilgiAdd와 같이 문제가없었다. 하지만 while 을 추가해서 갑자기 한칸더뒤로나가버리는현상이 발생
+		// 현재 pilgi는 건드리지 않은상태
+		while(temp) {
+			System.out.printf("과정 번호 입력(1 ~ %d까지 입력) : ", cnt);
+			int cseq = scan.nextInt();
+			
+			if(cseq <= 0 || cseq > cnt) {
+				System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+			} else {
+			
+				view.scoreAddtitle(AdminView.SILGI);
+				
+				ArrayList<SilgiRegiDTO> list = aDao.sRegi(cseq);
+
+				temp = false;
+				
+				for(SilgiRegiDTO sDto : list) {
+					
+					System.out.printf("%s\t\t%s\t\t\t%s\r\n"
+										, sDto.getSubjectName()
+										, sDto.getExamRegistry()
+										, sDto.getGradeRegistry());
+					
+				}
+			}
+		}
+		aDao.close();
+		
+		view.pause();
+	
+	
+	
+	
+	}//실기등록여부
+	
+	/*헌정*/
+	private void pilgiADD() {
+
+		AdminDAO aDao = new AdminDAO();
+		boolean temp = true;
+		
+		int cnt = aDao.courseCnt();
+		
+		while(temp) {
+			System.out.printf("과정 번호 입력(1 ~ %d까지 입력) : ", cnt);
+			int cseq = scan.nextInt();
+			
+			if(cseq <= 0 || cseq > cnt) {
+				System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+			} else {
+				
+				view.scoreAddtitle(AdminView.PILGI);
+				
+				ArrayList<PilgiRegiDTO> list = aDao.pRegi(cseq);
+				
+				temp = false;
+				
+				for(PilgiRegiDTO pDto : list) {
+					
+					System.out.printf("%s\t\t%s\t\t\t%s\r\n"
+										, pDto.getSubjectName()
+										, pDto.getExamRegistry()
+										, pDto.getGradeRegistry());
+					
+				}
+				
+			}
+		}
+		aDao.close();
+		
+		view.pause();
+
+	}//필기등록여부
+
+	public void scoreLIST() {
+
+		view.testmng_scoreChecktitle(AdminView.SCOREJOHAE);
+
+		boolean loop = true;
+
+		while (loop) {
+
+			view.scoreLISTMenu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				to_subjectSEARCH();
+			else if (sel.equals("2"))
+				to_studentSEARCH();
+
+			else if (sel.equals("0")){
+				loop = false;
+			} else {
+				System.out.println("잘못된입력입니다. 다시입력해주세요.");
+			}
+				
+		}
+
+	}
+	
+	
+	/*헌정 교육생별 성적 출력*/
+	private void to_studentSEARCH() {
+		
+		System.out.print("검색할 학생 번호 : ");
+		String seq = scan.nextLine();
+		
+		view.scoreLISTtitle(AdminView.ADD);
+		
+		AdminDAO aDao = new AdminDAO();
+		
+		ArrayList<GradeStudentDTO> list = aDao.gradeStudent(seq);
+		
+		for(GradeStudentDTO gsDto : list) {
+			
+			System.out.printf("%s\t\t%s\t\t\t%s\t%s\t%s\t\t%s\t\t%s\t\t%s\t\t\t%s\t%s\r\n"
+								, gsDto.getStudentName()
+								, gsDto.getBackSsn()
+								, gsDto.getOpenCourseName()
+								, gsDto.getOpenCoursePeriod()
+								, gsDto.getRoomName()
+								, gsDto.getTeacherName()
+								, gsDto.getOpenSubjectName()
+								, gsDto.getOpenSubjectPeriod()
+								, gsDto.getPilgi()
+								, gsDto.getSilgi());
+		}
+		
+		aDao.close();
+		
+		view.pause();
+		
+	}
+	
+	
+	/*헌정 과목별 성적 출력*/
+	private void to_subjectSEARCH() {
+		System.out.print("검색할 과목 번호 : ");
+		String seq = scan.nextLine();
+
+		view.scoreLISTtitle(AdminView.SCOREJOHAE);
+		
+		
+		AdminDAO aDao = new AdminDAO();
+		
+		ArrayList<GradeSubjectDTO> list = aDao.gradeSubject(seq);
+		
+		for(GradeSubjectDTO gDto : list) {
+			System.out.printf("%s\t\t%s\t%s\t%s\t\t%s\t%s\t%s\t\t%s\t\t\t%s\t%s\r\n"
+								, gDto.getTeacherName()
+								, gDto.getOpenCourseName()
+								, gDto.getOpenCoursePeriod()
+								, gDto.getRoomName()
+								, gDto.getSubjectName()
+								, gDto.getBookName()
+								, gDto.getStudentName()
+								, gDto.getBackSsn()
+								, gDto.getPilgi()
+								, gDto.getSilgi());
+		}
+		
+		aDao.close();
+		
+		view.pause();
+
+	}
+
+	public void attend_management() {
+
+		view.attend_management();
+
+		System.out.print("수정하실 이름 입력 : ");
+		String name = scan.nextLine();
+
+		System.out.print("수정하실 날짜 입력 : ");
+		String day = scan.nextLine();
+
+		System.out.print("번호 입력(1.출근 2.지각 3.조퇴 4.결석 5.병가 6.기타) : ");
+		String status = scan.nextLine();
+
+		dao.management(name, day, status);
+
+//		for (DTO dto : list) {
+//			System.out.printf("%s\t%s\t%s\t%s\t%s\n"
+//					,dto.getSeq(),dto.getIntime()
+//					,dto.getOuttime(),dto.getStatus(),dto.getLearningseq());
+//		}
+
+		view.pause();
+
+	}
+
+	public void attend_inquiry() {
+
+
+		AdminSubService subservice = new AdminSubService();
+		boolean loop = true;
+
+		while (loop) {
+
+			view.attend_inquiry();
+
+			String sel = scan.nextLine();
+			if (sel.equals("1"))
+				subservice.inquiry_whole();
+			else if (sel.equals("2"))
+				subservice.inquiry_day();
+			else if (sel.equals("3"))
+				subservice.inquiry_month();
+			else if (sel.equals("4"))
+				subservice.inquiry_year();
+			else if (sel.equals("5"))
+				subservice.inquiry_subject();
+			else if (sel.equals("0")){
+				loop = false;
+			} else {
+				System.out.println("잘못된입력입니다. 다시입력해주세요.");
+			}
+
+		}
+	}
+	
+	private void inquiry_subject() {
+		
+		view.attend_subject();
+		
+		System.out.print("과정 번호 입력 : ");
+		String seq = scan.nextLine();
+		
+		view.attend_subjectsub();
+		
+		ArrayList<AdminAttendSubjectDTO> list = dao.attendSubject(seq);
+		
+		for(AdminAttendSubjectDTO dto : list) {
+			System.out.printf("%s\t\t%s\t%s\t\t%s\t%s\t%s\r\n"
+								, dto.getName()
+								, dto.getAttendStatus()
+								, dto.getAttendTime()
+								, dto.getCourseSeq()
+								, dto.getCourseName()
+								, dto.getCoursePeriod());
+		}
+		
+		view.pause();
+		
+		
+	}
+
+	/*헌정 교육생 전체출결조회*/
+	private void inquiry_whole() {
+		
+		view.attend_whole();
+		
+		ArrayList<AdminStudentAttendedDTO> list = dao.attendWhole();
+		
+		for(AdminStudentAttendedDTO dto : list) {
+			System.out.printf("%-15s\t%s\t%s\t%s\t%s\r\n"//(0417 헌정수정)
+								, dto.getName()
+								, dto.getIntime()
+								, dto.getOuttime()
+								, dto.getStatus()
+								, dto.getTitle());
+		}
+		
+		
+		System.out.print("특정 교육생의 출결 정보를 확인하시겠습니까? (y / n) : ");
+		String res = scan.nextLine();
+		
+		if (res.equals("y")) {
+			System.out.print("교육생의 이름 입력 : ");
+			String name = scan.nextLine();
+			
+			view.attSearch();
+			
+			ArrayList<AdminStudentAttendedDTO> list2 = dao.attendSearch(name);
+			
+			for (AdminStudentAttendedDTO dto : list2) {
+				System.out.printf("%-15s\t\t%s\t%s\t%s\t%s\r\n" //(0417 헌정수정)
+									, dto.getName()
+									, dto.getIntime()
+									, dto.getOuttime()
+									, dto.getStatus()
+									, dto.getTitle());
+
+			}
+		} else if (res.equals("n")) {
+			System.out.println("정보 보기를 종료합니다.");
+		}
+		
+		view.pause();
+		
+		
+	}//교육생 전체출결조회 및 특정교육생 조회
+
+	
+	/*
+	 * 헌정
+	 */
+	public void inquiry_day() {
+
+		System.out.println("원하는 날짜를 입력하세요. ex) 2019-01-28 ");
+		System.out.print(" > ");
+		String day = scan.nextLine();
+
+		view.attend_day();
+
+		ArrayList<AdminStudentAttendedDTO> list = dao.day(day);
+
+		for (AdminStudentAttendedDTO dto : list) {
+			System.out.printf("%s\t%s\t\t%s\t\t%-15s\t\t%s\t\t%s\t\n" //(헌정0417수정)
+					, dto.getDay(), dto.getIntime(), dto.getOuttime(),
+					dto.getName(), dto.getStatus(), dto.getTitle());
+		}
+
+		view.pause();
+	}
+
+	public void inquiry_month() {
+
+		System.out.println("원하는 날짜를 입력하세요. ex) 2019-01 ");
+		System.out.print(" > ");
+		String month = scan.nextLine();
+
+		view.attend_month();
+
+		dao = new AdminDAO();
+		ArrayList<AdminStudentAttendedDTO> list = dao.month(month);
+
+		for (AdminStudentAttendedDTO dto : list) {
+			System.out.printf("%s\t%s\t\t%s\t\t%-15s\t\t%s\t\t%s\t\n" //(0417 헌정수정)
+					, dto.getDay()
+					, dto.getIntime()
+					, dto.getOuttime()
+					, dto.getName()
+					, dto.getStatus()
+					, dto.getTitle());
+		}
+
+		view.pause();
+	}
+
+	public void inquiry_year() {
+
+		System.out.println("원하는 날짜를 입력하세요. ex) 2019 ");
+		System.out.print(" > ");
+		String year = scan.nextLine();
+
+		view.attend_year();
+
+		dao = new AdminDAO();
+		ArrayList<AdminStudentAttendedDTO> list = dao.year(year);
+
+		for (AdminStudentAttendedDTO dto : list) {
+			System.out.printf("%s\t%s\t\t%s\t\t%-15s\t\t%s\t\t%s\t\n" //(0417 헌정수정)
+					, dto.getDay(), dto.getIntime(), dto.getOuttime(),
+					dto.getName(), dto.getStatus(), dto.getTitle());
+		}
+
+		view.pause();
+	}
+	
+	
+	
+	public void student_Input() {
+		
+		System.out.print("이름 : ");
+		String name = scan.nextLine();
+		name = name.replace("'", "''");
+		
+		System.out.print("주민번호(-를 포함해서 작성해주세요.) : ");
+		String ssn = scan.nextLine();
+		
+		System.out.print("전화번호(-를 포함해서 작성해주세요.) : ");
+		String tel = scan.nextLine();
+
+		System.out.print("주소지 : ");
+		String address = scan.nextLine();
+		
+		//1. DB작업 DAO에게 위임
+		AdminDAO aDao = new AdminDAO();
+		
+		//2. DTO에게 포장
+		StudentDTO sDto = new StudentDTO();
+		sDto.setName(name);
+		sDto.setSsn(ssn);
+		sDto.setTel(tel);
+		sDto.setAddress(address);
+		
+		int result = aDao.sInput(sDto);
+		
+		aDao.close();
+		
+		if (result == 1) {
+			System.out.println("교육생 추가를 완료했습니다.");
+		} else {
+			System.out.println("교육생 추가에 실패했습니다.");
+		}
+		
+		view.pause();
+		
+	}//추가
+	
+	/*헌정*/
+	public void student_Modified() {
+		view.student_editcolumn();
+		
+		AdminDAO aDao = new AdminDAO();
+		
+		ArrayList<StudentDTO> list = aDao.sElist();
+		
+		for(StudentDTO sDto : list) {
+			System.out.printf("%-4s\t%-15s\t%s\t%s\t%s\t%s\r\n" //(헌정0417수정)
+								, sDto.getSeq()
+								, sDto.getName()
+								, sDto.getSsn()
+								, sDto.getTel()
+								, sDto.getDelete_status()
+								, sDto.getAddress());
+		}
+		
+		view.student_eline();
+		
+		System.out.print("수정할 번호 : ");
+		String seq = scan.nextLine();
+		
+		StudentDTO sDto = aDao.sGet(seq);
+		
+		String tel = "";
+		String address = "";
+		String delete_status = "";
+		
+		if (sDto != null) {
+			tel = sDto.getTel();
+			address = sDto.getAddress();
+			delete_status = sDto.getDelete_status();
+		}
+		
+		System.out.println("기존 전화번호 : " + tel);
+		System.out.print("새로운 전화번호 : ");
+		String temp = scan.nextLine();
+		
+		if(!temp.equals("")) {
+			tel = temp;
+			tel = tel.replace("'", "''");
+		}
+		
+		System.out.println("기존 주소지 : " + address);
+		System.out.print("새로운 주소지 : ");
+		temp = scan.nextLine();
+		
+		if(!temp.equals("")) {
+			address = temp;
+			address = address.replace("'", "''");
+		}
+		
+		System.out.println("기존 상태 : " + delete_status);
+		System.out.print("새로운 상태('회원' or '탈퇴') : ");
+		temp = scan.nextLine();
+		
+		if(!temp.equals("")) {
+			delete_status = temp;
+			delete_status = delete_status.replace("'", "''");
+		}
+		
+		
+		
+		sDto = new StudentDTO();
+		sDto.setSeq(seq);
+		sDto.setTel(tel);
+		sDto.setAddress(address);
+		sDto.setDelete_status(delete_status);
+		
+		int result = aDao.sEdit(sDto);
+		
+		if(temp.equals("탈퇴")) {
+			
+			LearningDTO lDto = new LearningDTO();
+			lDto.setSeq(seq);
+			
+			int result2 = aDao.lEdit(lDto);
+			
+			if(result2 == 1) {
+				System.out.println("수강정보 수정 완료");
+			} else {
+				System.out.println("수강정보 수정 실패");
+			}
+			
+		}
+		
+		if (result == 1) {
+			System.out.println("회원 수정 완료");
+		} else {
+			System.out.println("회원 수정 실패");
+		}
+		
+		
+		
+		aDao.close();
+		
+		view.pause();
+		
+		
+	}//수정
+	
+	/*헌정 교육생 정보 조회 */
+	public void student_inquiry() {
+		view.student_columnname();
+		
+		AdminDAO aDao = new AdminDAO();
+		
+		ArrayList<StudentDTO> list = aDao.slist();
+		
+		for(StudentDTO sDto : list) {
+			
+			System.out.printf("%-4s\t%-15s\t%s\t%s\t%s\t%s\t%s\r\n" //수정(0417헌정)
+								, sDto.getSeq()
+								, sDto.getName()
+								, sDto.getSsn()
+								, sDto.getTel()
+								, sDto.getRegdate()
+								, sDto.getDelete_status()
+								, sDto.getAddress());
+			
+		}
+		
+		view.student_cline();
+		aDao.close();
+		
+		
+		boolean loop = true;
+		
+		while (loop) {
+
+			System.out.print("특정 교육생의 정보를 확인하시겠습니까? (y / n) : ");
+			String res = scan.nextLine();
+			
+			if (res.equals("y")) {
+				System.out.print("교육생의 이름 입력 : ");
+				String name = scan.nextLine();
+				
+				view.soloStudent();
+				
+				ArrayList<AdminStudentSearchDTO> list2 = dao.StudentSearch(name);
+				
+				for (AdminStudentSearchDTO dto : list2) {
+					System.out.printf("%s\t\t%s\t\t%s\t\t%s\t%s\t%s\t%s\t\t%s\t\t\t%s\t\t%s\r\n"
+										, dto.getName()
+										, dto.getSsn()
+										, dto.getTel()
+										, dto.getAddress()
+										, dto.getLearningCourse()
+										, dto.getCoursePeriod()
+										, dto.getRoomName()
+										, dto.getIng()
+										, dto.getIngdate()
+										, dto.getStatus());
+				}
+				
+				loop = false;
+				
+			} else if (res.equals("n")) {
+				System.out.println("정보 보기를 종료합니다.");
+				loop = false;
+			} else {
+				view.pauseBack();
+			}
+		}
+		
+		view.pause();
+		
+	}//출력
+	
+	public void courseADD() {/* 예찬 */
+
+		boolean loop = true;
+
+		while (loop) {
+			view.opencoursetitle(AdminView.ADD);
+
+			view.emptyroomtitle();
+
+			// 남은 강의실 조회 + 선택
+			ArrayList<AdminEmptyRoomDTO> erlist = dao.getEmptyRoom();
+
+			for (AdminEmptyRoomDTO erdto : erlist) {
+				System.out.printf("%s\t%s\t\t\t%s\n"
+									, erdto.getSeq()
+									, erdto.getName()
+									, erdto.getLimit());
+			}
+
+			// 조회된 번호만 가능하게 제약조건 만들기(메소드로 빼서)
+			System.out.println("등록 할 강의실 번호 선택");
+			System.out.print(" > ");
+			String roomseq = scan.nextLine();
+
+			System.out.println("과정명 입력");
+			System.out.print(" > ");
+			String title = scan.nextLine();
+
+			CourseTitleDTO ctdto = new CourseTitleDTO();
+			ctdto.setTitle(title);
+			dao.addCourseTitle(ctdto);
+
+			// 과정명에 따른 과정번호 가져오기
+			String coursetitleseq = dao.getCourseSeq(title);
+
+			System.out.println("시작일 입력 ex) 2019-01-28");
+			System.out.print(" > ");
+			String coursebegindate = scan.nextLine();
+
+			System.out.println("종료일 입력 ex) 2019-08-21");
+			System.out.print(" > ");
+			String courseenddate = scan.nextLine();
+
+			System.out.println("과정 설명 입력");
+			System.out.print(" > ");
+			String courseetc = scan.nextLine();
+
+			// 최종 과정 정보 DTO 생성
+			// seq, coursetitleseq, roomseq, status, begindate, enddate, etc
+			CourseDTO cdto = new CourseDTO();
+
+			cdto.setRoomseq(roomseq);
+			cdto.setCoursetitleseq(coursetitleseq);
+			cdto.setBegindate(coursebegindate);
+			cdto.setEnddate(courseenddate);
+			cdto.setEtc(courseetc);
+
+			// 최종 과정 정보 등록
+			int courseResult = dao.registCourse(cdto);
+
+			ArrayList<SubjectDTO> slist = dao.getSubject();
+
+			ArrayList<String> sublist = new ArrayList<String>();
+			// 과목 선택 for문
+			for (int i = 0;; i++) {
+				// 과목조회
+				view.subjectList();
+				for (SubjectDTO sdto : slist) {
+					System.out.printf("%s\t%s\n", sdto.getSeq(), sdto.getSubject_name());
+				}
+
+				System.out.println("[선택을 그만 하시려면 엔터를 눌러주세요.]");
+				System.out.printf("%d과목 번호 선택\n", i + 1);
+				System.out.print(" > ");
+				String subjectseq = scan.nextLine();
+				sublist.add(subjectseq);
+
+				if (sublist.get(i).equals("")) {
+					break;
+				}
+
+				// seq, courseseq, subjectseq, bookseq,
+				// teacherseq, begindate, enddate, etc
+
+				System.out.printf("%d과목 시작일 입력 ex) 2019-01-28\n", i + 1);
+				System.out.print(" > ");
+				String subjectbegindate = scan.nextLine();
+
+				System.out.printf("%d과목 종료일 입력 ex) 2019-08-21\n", i + 1);
+				System.out.print(" > ");
+				String subjectenddate = scan.nextLine();
+
+				System.out.printf("%d과목 설명 입력\n", i + 1);
+				System.out.print(" > ");
+				String subjectetc = scan.nextLine();
+
+				// 강사 조회
+				view.teacherList();
+				ArrayList<AdminTeacherInfoDTO> atlist = dao.getTeacherList(sublist.get(i));
+
+				for (AdminTeacherInfoDTO atdto : atlist) {
+					System.out.printf("%s\t%s\t\t%s\t%s\n"
+										, atdto.getSeq()
+										, atdto.getName()
+										, atdto.getAge()
+										, atdto.getRegdate());
+				}
+
+				// 강사 선택
+				System.out.println("강사 번호 선택");
+				System.out.print(" > ");
+				String teacherseq = scan.nextLine();
+
+				// 교재 조회
+				view.bookList();
+
+				ArrayList<BookDTO> blist = dao.getBook(subjectseq);
+
+				for (BookDTO bdto : blist) {
+					System.out.printf("%s\t%s\t%s\n"
+										, bdto.getSeq()
+										, bdto.getTitle()
+										, bdto.getPublisher());
+				}
+				// 교재 선택
+				System.out.println("교재 번호 선택");
+				System.out.print(" > ");
+				String bookseq = scan.nextLine();
+
+				String newcourseseq = dao.getNewCourseSeq();
+
+				// 최종 과목 정보 DTO 생성
+				CourseSubjectDTO csdto = new CourseSubjectDTO();
+
+				csdto.setCourseseq(newcourseseq);// 등록 완료 된 과정의 번호를 가져와야 함
+				csdto.setSubjectseq(subjectseq);
+				csdto.setBookseq(bookseq);
+				csdto.setTeacherseq(teacherseq);
+				csdto.setBegindate(subjectbegindate);
+				csdto.setEnddate(subjectenddate);
+				csdto.setEtc(subjectetc);
+
+				// 최종 과목 정보 등록
+				int courseSubjectResult = dao.registCourseSubject(csdto);
+
+				// 등록 성공 메시지
+				view.registCourseSuccess(courseResult);
+				view.registCourseSubjectSuccess(courseSubjectResult, i);
+
+			} // for_i
+
+			loop = false;
+		} // loop
+		view.pause();
+	}
+	
+	public void courseSET() {/* 예찬 */
+		view.opencoursetitle(AdminView.EDIT);
+
+		view.courseList();
+		ArrayList<AdminCourseInfoDTO> aclist = dao.courseInfoList();
+
+		for (AdminCourseInfoDTO dto : aclist) {
+			System.out.printf("\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\n\n"
+								, dto.getCourseSeq()
+								, dto.getCourseTitle()
+								, dto.getBegindate()
+								, dto.getEnddate()
+								, dto.getRoomName()
+								, dto.getStatus()
+								, dto.getEtc());
+		}
+
+		// 과정 선택
+		System.out.println("수정할 과정 번호 선택");
+		System.out.print(" > ");
+		String courseseq = scan.nextLine();
+
+		AdminCourseInfoDTO acdto = dao.courseInfo(courseseq);
+		String courseSeq = "";
+		String courseTitle = "";
+		String begindate = "";
+		String enddate = "";
+		String roomName = "";
+		String status = "";
+		String etc = "";
+
+		if (acdto != null) {
+			courseSeq = acdto.getCourseSeq();
+			courseTitle = acdto.getCourseTitle();
+			begindate = acdto.getBegindate();
+			enddate = acdto.getEnddate();
+			roomName = acdto.getRoomName();
+			status = acdto.getStatus();
+			etc = acdto.getEtc();
+		}
+
+		System.out.println("기존 상태 : " + status);
+		System.out.println("수정할 상태 ex) 진행중, 폐강, 정상종강");
+		System.out.print(" > ");
+		String alterStatus = scan.nextLine();
+
+		if (!alterStatus.equals("")) {
+			status = alterStatus;
+		}
+
+		System.out.println("기존 비고 : " + etc);
+		System.out.println("수정할 비고");
+		System.out.print(" > ");
+		String alterEtc = scan.nextLine();
+
+		if (!alterEtc.equals("")) {
+			etc = alterEtc;
+		}
+
+		acdto = new AdminCourseInfoDTO();
+		acdto.setCourseSeq(courseSeq);
+		acdto.setCourseTitle(courseTitle);
+		acdto.setBegindate(begindate);
+		acdto.setEnddate(enddate);
+		acdto.setRoomName(roomName);
+		acdto.setStatus(status);
+		acdto.setEtc(etc);
+
+		int result = dao.editCourseInfo(acdto);
+
+		if (result == 1) {
+			System.out.println("과정 정보 수정 완료");
+		} else {
+			System.out.println("과정 정보 수정 실패");
+		}
+
+		view.pause();
+	}
+	
+	public void courseSEARCH() {/* 예찬 */
+		view.opencoursetitle(AdminView.LIST);
+
+		view.courseList();
+		ArrayList<AdminCourseInfoDTO> aclist = dao.courseInfoList();
+
+		for (AdminCourseInfoDTO dto : aclist) {
+			System.out.printf("\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\n\n"
+								, dto.getCourseSeq()
+								, dto.getCourseTitle()
+								, dto.getBegindate()
+								, dto.getEnddate()
+								, dto.getRoomName()
+								, dto.getStatus()
+								, dto.getEtc());
+		}
+
+		// 과정 선택
+		System.out.println("과정 번호 선택");
+		System.out.print(" > ");
+		String courseseq = scan.nextLine();
+
+		ArrayList<StudentDTO> list = dao.studentInfoList(courseseq);
+
+		view.studentList();
+		for (StudentDTO sdto : list) {
+			System.out.printf("\t%s\t%s\t\t\t%s\t\t%s\t\t%s\n", sdto.getSeq(), sdto.getName(), sdto.getSsn(),
+					sdto.getTel(), sdto.getAddress());
+		}
+
+		view.pause();
+
+	}
+	
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,9 @@
+package com.test.jdbc;
+
+public class Ex05_Select {
+	public static void main(String[] args) {
+		
+		
+		
+	}
+}

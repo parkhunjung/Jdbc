@@ -1,0 +1,133 @@
+package com.test.etc;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.TreeSet;
+
+public class Ex02_Lambda {
+	public static void main(String[] args) {
+		
+		
+		
+		List<User> list = new ArrayList<User>();
+		
+		list.add(new User("홍길동", 25));
+		list.add(new User("아무개", 22));
+		list.add(new User("주미라", 21));
+		list.add(new User("라이온", 28));
+		list.add(new User("힝홍행", 33));
+		
+		System.out.println(list);
+		
+		//컬렉션 정렬
+		//1. Collections.sort(list)
+		//2. list.sort()
+		
+		//Collections.sort(list, ); // 단일타입 정렬O, 복합타입 정렬X
+		list.sort(new Comparator<User>() {
+
+			@Override
+			public int compare(User o1, User o2) {
+				
+				
+//				return o1.getAge() - o2.getAge();//나이 오름차순
+//				return o2.getAge() - o1.getAge();//나이 내림차순
+//				return o1.getName().compareTo(o2.getName()); //이름 오름차순
+				return o2.getName().compareTo(o1.getName()); //이름 내림차순
+			}
+			
+			
+		});
+		
+		System.out.println(list);
+		
+		//람다식을 쓴다면 어떻게편해질까?
+		list.sort((o1, o2) -> o1.getAge() - o2.getAge());
+		list.sort((o1, o2) -> o2.getName().compareTo(o1.getName()));		
+		
+		System.out.println(list);
+		
+		
+		
+		
+		
+		
+		TreeSet<User> set = new TreeSet<User>();
+		
+		set.add(new User("홍길동", 25));
+		set.add(new User("아무개", 22));
+		set.add(new User("주미라", 21));
+		set.add(new User("라이온", 28));
+		set.add(new User("힝홍행", 33));
+		
+		
+		
+	}
+}
+
+
+class User {
+	private String name;
+	private int age;
+
+	public User(String name, int age) {
+		
+		this.name = name;
+		this.age = age;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+
+	@Override
+	public String toString() {
+		return "name=" + name + " age=" + age + "\r\n";
+	}
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

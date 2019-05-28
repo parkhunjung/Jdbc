@@ -1,0 +1,13 @@
+package com.test.etc;
+
+public class Ex04_Stream {
+	
+	public static void main(String[] args) {
+		
+		//람다식을 배우는 목적
+		//1. 익명 객체(익명 메소드)를 쉽게 만들기 위해서
+		
+		
+	}
+	
+}

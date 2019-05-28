@@ -1,0 +1,5 @@
+package com.test.jdbc;
+
+public class Ex08_CallableStatement {
+
+}

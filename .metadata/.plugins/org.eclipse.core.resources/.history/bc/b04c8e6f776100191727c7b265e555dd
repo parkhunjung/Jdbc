@@ -1,0 +1,22 @@
+package com.test.etc;
+
+public class Ex04_Stream {
+	
+	public static void main(String[] args) {
+		
+		//람다식을 배우는 목적
+		//1. 익명 객체(익명 메소드)를 쉽게 만들기 위해서
+		// ex) 컬렉션(제공 메소드)에서 많이 사용
+		//2. 스트림에서 사용하기 위해
+		
+		
+		//스트림, Stream
+		// - JDK1.8에서 추가
+		// - 배열(컬렉션)을 탐색하는 도구
+		// - 람다식을 적극적으로 활용
+		
+		
+		
+	}
+	
+}

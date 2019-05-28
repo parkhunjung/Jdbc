@@ -1,0 +1,572 @@
+package com.project2.teacher;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import com.project2.main.MainView;
+import com.project2.main.TeacherDTO;
+
+public class TeacherService implements ITeacherService {
+
+	private TeacherView tview;
+	private TeacherSubView tsview;
+	private UserScanner scan;
+	private TeacherDAO dao;
+	private TeacherDTO dto;
+
+	public TeacherService() {
+
+		tview = new TeacherView();
+		tsview = new TeacherSubView();
+		scan = new UserScanner();
+		dao = new TeacherDAO();
+		dto = new TeacherDTO();
+	}
+	
+
+	@Override
+	public TeacherDTO login() {
+		ArrayList<TeacherDTO> teacherList = dao.teacherList();
+	    boolean loop = true;
+	    TeacherDTO teacher = null;
+	      
+	      while (loop) {
+	         System.out.println("강사 로그인 화면!");
+
+	         System.out.print("아이디(이름) : ");
+	         String id = scan.nextLine();
+	        
+
+	         System.out.print("비밀번호(주민번호뒷자리) : ");
+	         String pw = scan.nextLine();
+	         
+
+	         for (TeacherDTO tl : teacherList) {
+	            if (tl.getName().equals(id) && tl.gettPassword().equals(pw)) {// 해당 아이디,비밀번호의 회원이 있으면
+
+	               // 로그인한 학생의 정보를 DTO자료형의 student에 넣는다.
+	               teacher = tl;
+
+	               loop = false;
+
+	               tview.loginSucess();
+	               tview.pause();
+
+	               break;
+	               
+	            } // if 같은게 있으면 브레이크
+
+	         } // for
+
+	         if (teacher == null) {
+	            System.out.println("올바른 입력이 아닙니다!!!");
+	            System.out.println("엔터키. 다시입력");
+	            System.out.println("0. 뒤로가기");
+	            System.out.print("선택 : ");
+	            String sel = scan.nextLine();
+
+	            if (sel.equals("0")) {
+	               loop = false;
+	               
+	            }
+	            
+	         }//if 틀린값일때 나갈지 다시시도할지 정함
+
+	      } // while
+
+	      return teacher;
+		
+		
+		
+	
+	}
+
+	public void schedule() {
+
+		tview.scheduleTitle();
+
+		tview.pause();
+
+	}
+
+	public void course(TeacherDTO teacher) {
+		boolean loop = true;
+		
+		while (loop) {
+			tview.courseTitle();	
+			dao.teacher_courseList(teacher);
+			System.out.println("뒤로가고 싶으면 0을 눌러주세요.");
+			 System.out.print("> ");
+         String sel = scan.nextLine();
+//         System.out.println(sel);
+         
+         
+         if(sel.equals("0") ) {
+        	 loop = false;
+        	
+         }else {
+        	 
+        	 coursesubject(sel,teacher);
+             
+         } 
+             
+         }
+       
+		
+		
+		
+	
+		
+		}
+            
+		 
+	
+	
+public void coursesubject(String sel, TeacherDTO teacher) {
+	
+
+	 TeacherDAO dao = new TeacherDAO();
+	 boolean loop = true;
+	 while (loop) { 
+		 
+	 
+     dao.SubjectChoose(sel, teacher);
+     
+     System.out.println("뒤로가고 싶으면 0을 눌러주세요.");
+    System.out.print("> ");
+    String choice1 = scan.nextLine();
+    
+    if(choice1.equals("0")) {
+    	
+    	loop = false;
+    }else {
+    
+    	scoreOrpoints(sel,choice1);
+    }
+	 }
+	
+}
+
+public void scoreOrpoints(String sel, String choice1) {
+	 boolean loop = true;
+	 while (loop) { 
+
+	tview.scoremenu();
+	
+ String choice2 = scan.nextLine();
+ 
+ 
+ //*****************************************************★
+ if (choice2.equals("1")) {
+	 perscore(sel,choice1);
+ 	System.out.println();
+ }else if (choice2.equals("2")) {
+		
+	 	choosepilgi(sel,choice1);
+		
+		System.out.println();
+		
+	}else if (choice2.equals("3")) {
+			
+			numberOfanswer(sel,choice1);
+			System.out.println();
+			
+	}else if (choice2.equals("4")) {
+		
+		subject(sel,choice1);
+		System.out.println();		
+	}else if (sel.equals("0")) {
+		loop = false;
+	}else {
+//		tview.pauseBack();
+		loop = false;
+ 
+	}
+ 
+	
+	 }	
+	
+}
+public void choosepilgi(String sel, String choice1) {
+	
+	
+	 boolean loop = true;
+	 while (loop) { 
+	System.out.println("============================");
+	System.out.println("[가답안 조회]");
+	tview.pilgiORsilgmenu();//
+	
+ String choice3 = scan.nextLine();
+ 
+ 
+ //*****************************************************★
+ if (choice3.equals("1")) {
+	 answerJohae(sel,choice1);
+ 	System.out.println();
+ }else if (choice3.equals("2")) {
+	 answerSilgiJohae(sel,choice1);	
+		System.out.println();	
+	}else if(choice3.equals("0")) {
+		loop = false;
+		
+	}else {
+		
+		tview.pauseBack();
+	}
+	
+	//
+}
+	 
+}
+public void numberOfanswer(String sel, String choice1) {
+
+	System.out.println("여기!");
+	 boolean loop = true;
+	 while (loop) { 
+	System.out.println("[학생별 문제 개수 조회]");
+	tview.numberanswerTitle();//
+	dao.numberOfanswer(sel,choice1);
+
+	tview.pause();
+	loop = false;
+	
+	
+}
+	 
+}
+
+
+
+
+public void answerJohae(String sel, String choice1) {
+	
+	boolean loop = true;
+	while(loop) {
+	dao.answerJohae(sel,choice1);
+	tview.pause();
+	loop = false;
+	
+	}
+	
+	
+}
+
+public void answerSilgiJohae(String sel, String choice1) {
+	boolean loop = true;
+	while(loop) {
+	dao.answerSilgiJohae(sel,choice1); //
+	tview.pause();
+	loop = false;
+	
+	}
+	
+	
+	
+}
+public void subject(String sel,String subject) {
+	
+	
+		boolean loop = true;
+		
+		while(loop ) {
+	
+		tview.gradeTitle();
+		dao.finalchoose(sel,subject);
+		System.out.println("뒤로 가시려면  엔터를 눌러주세요.");
+		
+		scan.nextLine();
+		loop = false;
+		
+		}
+		
+	
+		
+		
+		
+		
+	}
+
+	
+
+
+	@Override
+	public void perscore(String sel,String subject) {
+		
+		boolean loop = true;
+		
+		while (loop) {
+			tview.perScore();
+			dao.perscorego(sel,subject);
+			
+			
+			System.out.println("뒤로 가시려면 엔터를 눌러주세요.");
+			scan.nextLine();
+				
+			loop = false;
+			
+	}
+
+
+}
+
+
+	public void schedule(TeacherDTO teacher) {
+		
+		tview.scheduleTitle();
+		
+			TeacherDAO dao = new TeacherDAO();
+			
+			
+			ArrayList<ScheduleDTO> schedule = dao.schedule(teacher);
+			
+			for(ScheduleDTO dto : schedule) {
+				System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+						,dto.getSeq()
+						,dto.getCoursetitle()
+						,dto.getCoursedate()
+						,dto.getRoomname()
+						,dto.getSubjectname()
+						,dto.getSubjectdate()
+						,dto.getSubjectbook()
+						,dto.getStudentsu()
+					);
+			}
+			dao.close();
+			tview.pause();
+
+		}
+	////////////////////////////////////////////////////////
+		public void course2(TeacherDTO teacher) {
+
+			
+			tview.courseTitle();
+			
+			TeacherDAO dao = new TeacherDAO();
+			
+			ArrayList<CourseDTO> course = dao.course(teacher);
+			 
+			for(CourseDTO dto : course) {
+				System.out.printf("%s\t%s\t%s\n"
+						,dto.getCoursename()
+						,dto.getCoursedate()
+						,dto.getStatus()
+						
+					);
+			}
+			dao.close();
+			tview.pause();
+
+		}
+		
+	//-------------------------------------------------------
+		
+
+		public void whole(TeacherDTO teacher) {
+
+			tview.wholeTitle();
+			TeacherDAO dao = new TeacherDAO();
+			
+			ArrayList<WholeDTO> whole = dao.whole(teacher);
+			
+			for(WholeDTO dto : whole) {
+				System.out.printf("%s\t%s\t%s\t%s\t%s\n"
+						,dto.getBeginday()
+						,dto.getBegintime()
+						,dto.getEndday()
+						,dto.getName()
+						,dto.getState()
+						
+					);
+			}
+			dao.close();
+			
+			tview.pause();
+
+		}
+	////////////////////////////////////////////////
+		
+		public void subjectAttended() {
+
+			tview.subjectAttendedTitle();
+
+			TeacherDAO dao = new TeacherDAO();
+
+			ArrayList<SSubjectDTO> subject = dao.subject(dto);
+
+			for (SSubjectDTO dto : subject) {
+				System.out.printf("%s\t%s\n"
+						,dto.getSubject()
+						,dto.getInoutday()
+						
+					);
+				
+			}
+			
+			System.out.println();
+			System.out.println("더 이상 진행중인 과목이 없으니 출결률 조회를 종료합니다....");
+			dao.close();
+			tview.pause();
+		}
+
+		
+		
+		public void day(TeacherDTO teacher) {
+
+			tview.dayTitle();
+
+			TeacherDAO dao = new TeacherDAO();
+
+			System.out.print("년 : "); // 메모 내용 검색
+			int year = scan.nextInt();
+			System.out.print("월 : "); // 메모 내용 검색
+			int month = scan.nextInt();
+			System.out.print("일 : "); // 메모 내용 검색
+			int day = scan.nextInt();
+
+			ArrayList<DayDTO> dayy = dao.dayy(year, month, day,teacher);
+			
+			for(DayDTO dto : dayy) {
+				System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\n"
+						,dto.getBeginday()
+						,dto.getIntime()
+						,dto.getOuttime()
+						,dto.getName()
+						,dto.getStats()
+						,dto.getCourse()
+						
+				);
+			}
+			dao.close();
+			tview.pause();
+		}
+		
+		
+		public void month(TeacherDTO teacher) {
+
+			tview.monthTitle();
+
+			TeacherDAO dao = new TeacherDAO();
+
+			System.out.print("년 : "); // 메모 내용 검색
+			int year = scan.nextInt();
+			System.out.print("월 : "); // 메모 내용 검색
+			int month = scan.nextInt();
+			ArrayList<DayDTO> monthh = dao.monthh(year, month,teacher);
+			
+			for(DayDTO dto : monthh) {
+				System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\n"
+						,dto.getBeginday()
+						,dto.getIntime()
+						,dto.getOuttime()
+						,dto.getName()
+						,dto.getStats()
+						,dto.getCourse()
+
+				);
+			}
+			dao.close();
+			tview.pause();
+		}
+		
+		
+		public void year(TeacherDTO teacher) {
+
+			tview.yearTitle();
+			
+			TeacherDAO dao = new TeacherDAO();
+
+			System.out.print("년 : "); // 메모 내용 검색
+			int year = scan.nextInt();
+
+			ArrayList<DayDTO> yearr = dao.yearr(year,teacher);
+
+			for(DayDTO dto : yearr) {
+				System.out.printf("%s\t%s\t%s\t%s\t%s\t%s\n"
+						,dto.getBeginday()
+						,dto.getIntime()
+						,dto.getOuttime()
+						,dto.getName()
+						,dto.getStats()
+						,dto.getCourse()
+						
+					);
+			}
+			dao.close();
+			tview.pause();
+		}
+
+		
+		
+		public void attended(TeacherDTO teacher) {
+
+			boolean loop = true;
+
+			while (loop) {
+
+				tsview.attended();
+
+				String sel = scan.nextLine();
+
+				if (sel.equals("1"))
+					whole(teacher);
+				else if (sel.equals("2"))
+					period(teacher);
+				else if (sel.equals("3"))
+					subjectAttended();
+				else if (sel.equals("0"))
+					loop = false;
+				else
+					System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+			}
+
+		}
+
+		@Override
+		public void lessonSchedule(TeacherDTO teacher) {
+			boolean loop = true;
+
+			while (loop) {
+
+				tsview.lessonSchedule();
+
+				String sel = scan.nextLine();
+
+				if (sel.equals("1"))
+					schedule(teacher);
+//					System.out.println("ee");
+				else if (sel.equals("2"))
+					course(teacher);
+				else if (sel.equals("0"))
+					loop = false;
+				else
+					System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+			}
+		}
+
+		public void period(TeacherDTO teacher) {
+
+			boolean loop = true;
+
+			while (loop) {
+
+				tsview.period();
+
+				String sel = scan.nextLine();
+
+				if (sel.equals("1"))
+					day(teacher);
+				else if (sel.equals("2"))
+					month(teacher);
+				else if (sel.equals("3"))
+					year(teacher);
+				else if (sel.equals("0"))
+					loop = false;
+				else
+					System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+			}
+		}
+
+
+	
+	
+}

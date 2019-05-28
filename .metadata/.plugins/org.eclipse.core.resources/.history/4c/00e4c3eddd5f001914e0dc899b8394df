@@ -1,0 +1,75 @@
+package com.test.etc;
+
+public class Ex01_Lambda {
+	
+	public static void main(String[] args) {
+		/*
+		 
+		 람다식
+		 - 병렬 처리, 이벤트 처리, 스트림 처리 등에 사용
+		 - JDK 1.8 지원
+		 - 함수형 프로그래밍 방식을 지원하는 표현식 > 코딩 패턴이 다른 문법을 제공
+		 - 익명 메소드를 작성하기 위해서 사용 > 재사용 목적x, 1회용 목적o > 1회용 메소드 제작이 목적!!
+		 
+		 람다식 기본 형태
+		 - (자료형 변수명) -> {실행 코드;}
+		 - (자료형 변수명) : 매개변수 부분
+		 - -> Arrow, 매개변수 부분과 실행 코드블럭을 연결 역할, 호출하는 역할
+		 - {실행 코드;} : 메소드 구현부
+		 
+		 람다식을 적용하기 위한 조건
+		 - 인터페이스 변수 = 람다식;
+		 
+		 샘플
+		 - (int n) -> {System.out.print(n);}
+		 
+		 
+		 */
+		
+		//익명 객체
+		//인터페이스 변수 = new 인터페이스() {구현부;}
+		MyInterface my1 = new MyInterface() {
+			
+			@Override
+			public void test() {
+				System.out.println("테스트입니다.");
+			}
+		};
+		
+		my1.test();
+		my1.test();// 객체의 사용은 재사용이 가능하다.
+		
+		MyInterface my2 = new MyInterface() {
+			
+			@Override
+			public void test() {
+				//같은 형식이라도 다시 구현 // 객체의 생성은 재사용이 불가능하다. > 익명객체
+			}
+		};
+		
+	}
+	
+}
+
+
+interface MyInterface {
+	void test();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

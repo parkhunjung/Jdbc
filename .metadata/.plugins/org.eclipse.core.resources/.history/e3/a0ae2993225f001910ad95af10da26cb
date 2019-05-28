@@ -1,0 +1,25 @@
+package com.test.jdbc;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+
+public class Ex08_CallableStatement {
+	
+	private static Connection conn;
+	private static CallableStatement cstat;
+	
+	static {
+		DBUtil util = new DBUtil();
+		conn = util.connect();
+	}
+	
+	public static void main(String[] args) {
+		
+		//1. Statement : 정적 쿼리
+		//2. PreparedStatement : 동적 쿼리
+		//3. CallableStatement : 프로시저 호출 전용
+		
+	}
+	
+	
+}

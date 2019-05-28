@@ -1,0 +1,71 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class Ex05_Select {
+	public static void main(String[] args) {
+		
+		
+		
+		m1();
+		
+		
+	}
+
+	private static void m1() {
+		
+		//단일값 반환
+		// > select > 1행 1열 반환
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null; //select 결과 테이블 참조 객체(구조가 cursor와 유사함)
+		
+		try {
+		
+			conn = util.connect();
+			
+			
+			if(!conn.isClosed()) {
+				
+				stat = conn.createStatement();
+				String sql = "SELECT COUNT(*) AS 행수 FROM tblAddress";
+				
+				//반환값 없는 쿼리
+				//int result = stat.executeUpdate(sql);
+				
+				//반환값이 있는 쿼리
+				rs = stat.executeQuery(sql); // 반환값이 ResultSet 자료형임
+				
+				//rs : SELECT 결과값
+				rs.next(); // 커서를 아래로(다음 레코드로) 한칸 전진
+				
+				//rs.getXXX(특정컬럼)
+				//rs.getInt(index); : 결과셋의 컬럼 위치(index) 1부터 시작(***)
+				//rs.getInt("컬럼명"); : 결과셋의 컬럼명
+				
+//				int cnt = rs.getInt(1);
+				int cnt = rs.getInt("행수");
+				
+				System.out.println("주소록 행 개수 : " + cnt);
+				
+				//자원해제
+				rs.close();
+				stat.close();
+				conn.close();
+				
+			} else {
+				System.out.println("관리자에게 연락하세요.");
+			}
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		
+		
+	}
+}

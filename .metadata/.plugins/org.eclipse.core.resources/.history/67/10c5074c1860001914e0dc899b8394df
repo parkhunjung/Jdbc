@@ -1,0 +1,893 @@
+package com.project2.admin;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import com.project2.main.AdminDTO;
+import com.project2.main.DBUtil;
+import com.project2.main.LearningDTO;
+import com.project2.main.StudentDTO;
+import com.project2.main.TeacherDTO;
+
+
+
+public class AdminDAO {
+	
+	private Connection conn;
+	private Statement stat;
+	private PreparedStatement pstat;
+	
+	public AdminDAO() {
+		
+		try {
+			DBUtil util = new DBUtil();
+			this.conn = util.connect(DBUtil.SERVERIP,DBUtil.SERVERID,DBUtil.SERVERPW);
+			this.stat = conn.createStatement();
+			
+		} catch (SQLException e) {
+			System.out.print("AdminDAO 오류 : ");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public boolean isConnected() {
+		
+		try {
+			return !this.conn.isClosed();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+		
+	}//접속중이면 true 접속끊기면 false 반환
+	
+	public void close() {
+		
+		try {
+			
+			this.conn.close();
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+	}
+	
+	public int courseCnt() {
+		
+		String sql = "SELECT Count(*) AS cnt FROM tblcoursetitle";
+		
+		try {
+			
+			ResultSet rs = stat.executeQuery(sql);
+			
+			rs.next();
+			int result = rs.getInt("cnt");
+			
+			rs.close();
+			
+			return result;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		return 0;
+	}//과정개수
+	
+	/*헌정 실기 등록*/
+	public ArrayList<SilgiRegiDTO> sRegi(int cseq) {
+		
+		String sql = "SELECT" + 
+				"    DISTINCT(s.subject_name) AS subjectName," + 
+				"    CASE" + 
+				"        WHEN s.seq IN (SELECT courseSubjectSeq FROM tblsilgiexam GROUP BY coursesubjectseq HAVING COUNT(*) = 10) THEN '완료'" + 
+				"        ELSE '미완료'" + 
+				"    END AS examRegistry," + 
+				"    CASE\r\n" + 
+				"        WHEN (SELECT COUNT(*) FROM tbllearning WHERE courseseq = ?) * 10 = (SELECT COUNT(*) FROM tblsilgianswer WHERE courseSubjectSeq = s.seq) THEN '완료'" + 
+				"        ELSE '미완료'" + 
+				"    END AS gradeRegistry" + 
+				" FROM tblsubject s" + 
+				"    WHERE s.seq IN (SELECT subjectseq FROM tblcourseSubject WHERE courseseq = ?)";
+		
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setInt(1, cseq);
+			pstat.setInt(2, cseq);
+			
+			
+			ResultSet rs = pstat.executeQuery();
+			
+			ArrayList<SilgiRegiDTO> list = new ArrayList<SilgiRegiDTO>();
+			
+			while(rs.next()) {
+				
+				SilgiRegiDTO sDto = new SilgiRegiDTO();
+				
+				sDto.setSubjectName(rs.getString("subjectName"));
+				sDto.setExamRegistry(rs.getString("examRegistry"));
+				sDto.setGradeRegistry(rs.getString("gradeRegistry"));
+				
+				list.add(sDto);
+			}
+			
+			rs.close();
+			
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		return null;
+	}
+	
+	/*헌정 필기등록*/
+	public ArrayList<PilgiRegiDTO> pRegi(int cseq) {
+
+		String sql = "SELECT " + 
+				"    DISTINCT(s.subject_name) AS subjectName," + 
+				"    CASE" + 
+				"        WHEN s.seq IN (SELECT courseSubjectSeq FROM tblpilgiexam GROUP BY coursesubjectseq HAVING COUNT(*) =20) THEN '완료'" + 
+				"        ELSE '미완료'" + 
+				"    END AS examRegistry," + 
+				"    CASE" + 
+				"        WHEN (SELECT COUNT(*) FROM tbllearning WHERE courseseq = ?) * 20 = (SELECT COUNT(*) FROM tblpilgianswer WHERE courseSubjectSeq = s.seq) THEN '완료'" + 
+				"        ELSE '미완료'" + 
+				"    END AS gradeRegistry" + 
+				" FROM tblsubject s" + 
+				"    WHERE s.seq IN (SELECT subjectseq FROM tblcourseSubject WHERE courseseq = ?)";
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setInt(1, cseq);
+			pstat.setInt(2, cseq);
+			
+			ResultSet rs = pstat.executeQuery();
+			
+			ArrayList<PilgiRegiDTO> list = new ArrayList<PilgiRegiDTO>();
+			
+			while(rs.next()) {
+				
+				PilgiRegiDTO pDto = new PilgiRegiDTO();
+				
+				pDto.setSubjectName(rs.getString("subjectName"));
+				pDto.setExamRegistry(rs.getString("examRegistry"));
+				pDto.setGradeRegistry(rs.getString("gradeRegistry"));
+				
+				list.add(pDto);
+				
+				
+			}
+			
+			rs.close();
+			
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		return null;
+	}
+	
+	
+	/*헌정*/
+	public int sInput(StudentDTO dto) {
+		
+		String sql = "insert into tblStudent(seq, name, ssn, tel, address, regdate, delete_status)" + 
+				" values(student_seq.nextval, ?, ?, ?, ?, default, '회원') ";
+		
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, dto.getName());
+			pstat.setString(2, dto.getSsn());
+			pstat.setString(3, dto.getTel());
+			pstat.setString(4, dto.getAddress());
+			
+			return pstat.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			System.out.println("AdminDAO.sInput() : " + e.toString());
+		}
+		
+		
+		
+		
+		return 0;
+		
+	}
+	
+	
+	public ArrayList<StudentDTO> slist() {
+		
+		try {
+			
+			String sql = "SELECT * FROM tblStudent ORDER BY seq";
+			
+			ResultSet rs = stat.executeQuery(sql);
+			
+			ArrayList<StudentDTO> list = new ArrayList<StudentDTO>();
+			
+			while(rs.next()) {
+				
+				StudentDTO sDto = new StudentDTO();
+				
+				sDto.setSeq(rs.getString("seq"));
+				sDto.setName(rs.getString("name"));
+				sDto.setSsn(rs.getString("ssn"));
+				sDto.setTel(rs.getString("tel"));
+				sDto.setAddress(rs.getString("address"));
+				sDto.setRegdate(rs.getString("regdate"));
+				sDto.setDelete_status(rs.getString("delete_status"));
+				
+				list.add(sDto);
+			}
+			
+			rs.close();
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		return null;
+		
+	}
+	
+	
+	/*헌정 학생수정목록*/
+	public ArrayList<StudentDTO> sElist() {
+		
+		try {
+			
+			String sql = "SELECT seq, name, ssn, tel, address, delete_status FROM tblStudent ORDER BY seq";
+			
+			ResultSet rs = stat.executeQuery(sql);
+			
+			ArrayList<StudentDTO> list = new ArrayList<StudentDTO>();
+			
+			while (rs.next()) {
+				
+				StudentDTO sDto = new StudentDTO();
+				
+				sDto.setSeq(rs.getString("seq"));
+				sDto.setName(rs.getString("name"));
+				sDto.setSsn(rs.getString("ssn"));
+				sDto.setTel(rs.getString("tel"));
+				sDto.setAddress(rs.getString("address"));
+				sDto.setDelete_status(rs.getString("delete_status"));
+				
+				list.add(sDto);
+				
+			}
+			
+			rs.close();
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println("AdminDAO.sElist() : " + e.toString());
+		}
+		
+		return null;
+	}
+	
+	/*헌정 학생정보수정*/
+	public int sEdit(StudentDTO dto) {
+		
+		try {
+			
+			String sql = "UPDATE tblstudent SET tel = ?, address = ?, delete_status = ?  where SEQ = ? ";
+			
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, dto.getTel());
+			pstat.setString(2, dto.getAddress());
+			pstat.setString(3, dto.getDelete_status());
+			pstat.setString(4, dto.getSeq());
+			
+			return pstat.executeUpdate();
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+
+		return 0;
+	}
+	
+	/*헌정 학생수강중인정보 수정*/
+	public int lEdit(LearningDTO dto) {
+		
+		try {
+			
+			String sql = "UPDATE tbllearning SET ing = '중도탈락', ingdate = TO_CHAR(SYSDATE, 'yyyy-mm-dd') WHERE studentseq = ?";
+			
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, dto.getSeq());
+			
+			
+			return pstat.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		return 0;
+	}//수강정보 중도탈락,현재날짜로 수정
+	
+	/*헌정 학생 수정할 번호에대한 정보 얻어오기*/
+	public StudentDTO sGet(String seq) {
+		String sql = "SELECT * FROM tblStudent WHERE seq = ?";
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+			
+			ResultSet rs = pstat.executeQuery();
+				
+			StudentDTO sDto = new StudentDTO();
+			
+			if(rs.next()) {
+				sDto.setSeq(rs.getString("seq"));
+				sDto.setName(rs.getString("name"));
+				sDto.setSsn(rs.getString("ssn"));
+				sDto.setTel(rs.getString("tel"));
+				sDto.setAddress(rs.getString("address"));
+				sDto.setDelete_status(rs.getString("delete_status"));
+				
+				return sDto;
+				
+			}
+		
+		} catch (SQLException e) {
+			System.out.print("AdminDAO.get : ");
+			e.printStackTrace();
+		}
+	
+		
+		return null;
+	}
+	
+	/*헌정 학생 수강중인 정보 얻어오기*/
+	public LearningDTO lGet(String seq) {
+		String sql = "SELECT * FROM tbllearning WHERE studentseq = ?";
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+			
+			ResultSet rs = pstat.executeQuery();
+				
+			LearningDTO sDto = new LearningDTO();
+			
+			if(rs.next()) {
+				sDto.setSeq(rs.getString("seq"));
+				sDto.setCourseseq(rs.getString("courseSeq"));
+				sDto.setStudentseq(rs.getString("studentseq"));
+				sDto.setIng(rs.getString("ing"));
+				sDto.setIngdate(rs.getString("ingdate"));
+				
+				return sDto;
+				
+			}
+		
+		} catch (SQLException e) {
+			System.out.print("AdminDAO.get : ");
+			e.printStackTrace();
+		}
+	
+		
+		return null;
+	}//수강정보 동시수정
+	
+	/*헌정(병현's 로그인)*/
+	public ArrayList<AdminDTO> adminList() {
+		try {
+			String sql = "SELECT * FROM tblAdmin ";
+
+			ResultSet rs = stat.executeQuery(sql);
+
+			ArrayList<AdminDTO> adminList = new ArrayList<AdminDTO>();
+
+			// rs -> (복사) -> list
+			while (rs.next()) {
+				// 레코드 1개 -> DTO 1개
+				AdminDTO dto = new AdminDTO();
+
+				dto.setSeq(rs.getString("seq"));
+				// 컬럼값 --> DTO 멤버변수
+				dto.setName(rs.getString("name"));
+				dto.setSsn(rs.getString("ssn"));
+				dto.setTel(rs.getString("tel"));
+				dto.setAddress(rs.getString("address"));
+				dto.setRegdate(rs.getString("regdate"));
+
+				adminList.add(dto);
+			}
+			
+			rs.close();
+			return adminList;
+			
+		} catch (Exception e) {
+			System.out.println("AdminDAO의 adminList() : " + e.toString());
+		}
+
+		return null;
+
+	}// 로그인에 쓰이는 DAO 리스트
+
+	
+	/*헌정 과목별 성적*/
+	public ArrayList<GradeSubjectDTO> gradeSubject(String seq) {
+		
+		String sql = "SELECT * FROM vwsubjectlist WHERE subjectName IN (SELECT subject_name FROM tblSubject WHERE seq = ? )";
+
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+			
+			
+			ResultSet rs = pstat.executeQuery();
+			
+			ArrayList<GradeSubjectDTO> list = new ArrayList<GradeSubjectDTO>();
+			
+			while(rs.next()) {
+				
+				GradeSubjectDTO gDto = new GradeSubjectDTO();
+				
+				gDto.setTeacherName(rs.getString("teacherName"));
+				gDto.setOpenCourseName(rs.getString("openCourseName"));
+				gDto.setOpenCoursePeriod(rs.getString("openCoursePeriod"));
+				gDto.setRoomName(rs.getString("roomName"));
+				gDto.setSubjectName("subjectName");
+				gDto.setBookName(rs.getString("bookName"));
+				gDto.setStudentName(rs.getString("studentName"));
+				gDto.setBackSsn(rs.getString("backSsn"));
+				gDto.setPilgi(rs.getString("pilgi"));
+				gDto.setSilgi(rs.getString("silgi"));
+				
+				list.add(gDto);
+			}
+			
+			rs.close();
+			
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		
+		return null;
+	}
+	
+	/*헌정 학생별성적*/
+	public ArrayList<GradeStudentDTO> gradeStudent(String seq) {
+		
+		String sql = "SELECT * FROM vwstudentlist WHERE studentName IN (SELECT name FROM tblStudent WHERE seq = ?) ORDER BY openSubjectPeriod";
+		
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+			
+			ResultSet rs = pstat.executeQuery();
+			
+			ArrayList<GradeStudentDTO> list = new ArrayList<GradeStudentDTO>();
+			
+			while(rs.next()) {
+				
+				GradeStudentDTO gsDto = new GradeStudentDTO();
+				
+				gsDto.setStudentName(rs.getString("studentName"));
+				gsDto.setBackSsn(rs.getString("backSsn"));
+				gsDto.setOpenCourseName(rs.getString("openCourseName"));
+				gsDto.setOpenCoursePeriod(rs.getString("openCoursePeriod"));
+				gsDto.setRoomName(rs.getString("roomName"));
+				gsDto.setTeacherName(rs.getString("teacherName"));
+				gsDto.setOpenSubjectName(rs.getString("openSubjectName"));
+				gsDto.setOpenSubjectPeriod(rs.getString("openSubjectPeriod"));
+				gsDto.setPilgi(rs.getString("pilgi"));
+				gsDto.setSilgi(rs.getString("silgi"));
+				
+				list.add(gsDto);
+				
+			}
+			
+			rs.close();
+			return list;
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		return null;
+	}
+
+////////////////////////////////////////////////////////////////////////////
+	
+	public int add(TeacherDTO tdto) {
+		String sql = "insert into tblTeacher (seq, name, ssn, tel, address, regdate, delete_status) values (teacher_seq.nextval, ?, ?, ?, ?, default, '회원')";
+
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, tdto.getName());
+			pstat.setString(2, tdto.getSsn());
+			pstat.setString(3, tdto.getTel());
+			pstat.setString(4, tdto.getAddress());
+
+			return pstat.executeUpdate();
+
+		} catch (Exception e) {
+			System.out.println("AdminDAO.Constructor");
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+
+	public int del(String seq) {
+		try {
+			System.out.println(seq);
+			String sql = "UPDATE tblteacher SET delete_status = '탈퇴' WHERE seq = ?";
+
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+
+			return pstat.executeUpdate();
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return 0;
+	}
+/////////////////////////////////////////////////////////////////////////////
+	public ArrayList<TeacherDTO> tlist() {
+
+		try {
+			String sql = "SELECT * FROM tblteacher";
+
+			ResultSet rs = stat.executeQuery(sql);
+
+			ArrayList<TeacherDTO> list = new ArrayList<TeacherDTO>();
+
+			while (rs.next()) {
+
+				TeacherDTO dto = new TeacherDTO();
+
+				dto.setSeq(rs.getString("seq"));
+				dto.setName(rs.getString("name"));
+				dto.setSsn(rs.getString("ssn"));
+				dto.setTel(rs.getString("tel"));
+				dto.setAddress(rs.getString("address"));
+				dto.setDelete_status(rs.getString("delete_status"));
+
+				list.add(dto);
+			}
+
+			rs.close();
+			return list;
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
+
+		}
+		
+		return null;
+	}
+//////////////////////////////////////////////////////////////////
+	
+
+	public int edit(TeacherDTO dto) {
+		try {
+			String sql = "UPDATE tblteacher SET name = ?, tel = ?, address = ? where seq = ?";
+			pstat = conn.prepareStatement(sql);
+
+			pstat.setString(1, dto.getName());
+			pstat.setString(2, dto.getTel());
+			pstat.setString(3, dto.getAddress());
+			pstat.setString(4, dto.getSeq());
+
+			return pstat.executeUpdate();
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return 0;
+	}
+
+	public TeacherDTO get(String seq) {
+		try {
+			String sql = "SELECT * FROM tblTeacher WHERE seq = ?";
+			TeacherDTO dto = new TeacherDTO();
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, seq);
+
+			ResultSet rs = pstat.executeQuery();
+
+			if (rs.next()) {
+
+				dto.setSeq(rs.getString("seq"));
+				dto.setName(rs.getString("name"));
+				dto.setTel(rs.getString("tel"));
+				dto.setAddress(rs.getString("address"));
+			}
+
+			rs.close();
+			return dto;
+
+		} catch (Exception e) {
+			System.out.println("AdminDAO get() : " + e.toString());
+		}
+		return null;
+	}
+
+	public ArrayList<AdminStudentAttendedDTO> whole() {
+		
+		String sql = "SELECT * FROM vwAttendWhole";
+		
+		try {
+			ResultSet rs = stat.executeQuery(sql);
+			
+			ArrayList<AdminStudentAttendedDTO> list = new ArrayList<AdminStudentAttendedDTO>();
+			
+			while(rs.next()) {
+				AdminStudentAttendedDTO dto = new AdminStudentAttendedDTO();
+				
+				dto.setName(rs.getString("name"));
+				
+			}
+			
+			
+		} catch (Exception e) {
+			System.out.println("AdminDAO whole() : " +  e.toString());
+		}
+		
+		
+		
+		return null;
+	}	
+	
+////////////////////////////////////////////////////////////////////////////
+	public ArrayList<AdminStudentAttendedDTO> day(String day) {
+
+		String sql = "SELECT" + "    TO_CHAR(a.intime,'yyyy-mm-dd') as 출근날짜," + "    CASE"
+				+ "        WHEN TO_CHAR(a.intime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.intime,'hh24:mi')" + "    END AS 출근시간," + "    CASE"
+				+ "        WHEN TO_CHAR(a.outtime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.outtime,'hh24:mi')" + "    END AS 퇴근시간,"
+				+ "    st.name AS 이름, a.status AS 상태, ct.title AS 과정명" + "  FROM tblstudent st"
+				+ "  INNER JOIN tbllearning l" + " ON l.studentseq = st.seq" + " INNER JOIN tblattended a"
+				+ " ON a.learningseq = l.seq" + " INNER JOIN tblcourse c" + " ON c.seq = l.courseseq"
+				+ " INNER JOIN tblcoursetitle ct" + " ON ct.seq = c.coursetitleseq"
+				+ " WHERE TO_CHAR(a.intime,'yyyy-mm-dd') = ?" + " ORDER BY 출근날짜";
+
+		try {
+
+			ArrayList<AdminStudentAttendedDTO> list = new ArrayList<AdminStudentAttendedDTO>();
+
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, day);
+
+			ResultSet rs = pstat.executeQuery();
+
+			while (rs.next()) {
+				AdminStudentAttendedDTO dto = new AdminStudentAttendedDTO();
+				dto.setDay(rs.getString("출근날짜"));
+				dto.setIntime(rs.getString("출근시간"));
+				dto.setOuttime(rs.getString("퇴근시간"));
+				dto.setName(rs.getString("이름"));
+				dto.setStatus(rs.getString("상태"));
+				dto.setTitle(rs.getString("과정명"));
+
+				list.add(dto);
+
+			}
+			return list;
+
+		} catch (Exception e) {
+			System.out.println("dao : " + e.toString());
+		}
+
+		return null;
+	}
+/////////////////////////////////////////////////////////////////////////
+	public ArrayList<AdminStudentAttendedDTO> month(String month) {
+
+		String sql = "SELECT" + "    TO_CHAR(a.intime,'yyyy-mm-dd') 출근날짜," + "    CASE"
+				+ "        WHEN TO_CHAR(a.intime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.intime,'hh24:mi')" + "    END AS 출근시간," + "    CASE"
+				+ "        WHEN TO_CHAR(a.outtime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.outtime,'hh24:mi')" + "    END AS 퇴근시간,"
+				+ "    st.name AS 이름, a.status AS 상태, ct.title AS 과정명" + " FROM tblstudent st"
+				+ " INNER JOIN tbllearning l" + " ON l.studentseq = st.seq" + " INNER JOIN tblattended a"
+				+ " ON a.learningseq = l.seq" + " INNER JOIN tblcourse c" + " ON c.seq = l.courseseq"
+				+ " INNER JOIN tblcoursetitle ct" + " ON ct.seq = c.coursetitleseq"
+				+ " WHERE TO_CHAR(a.intime,'yyyy-mm') = ? " + " ORDER BY 출근날짜";
+
+		try {
+
+			ArrayList<AdminStudentAttendedDTO> list = new ArrayList<AdminStudentAttendedDTO>();
+
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, month);
+
+			ResultSet rs = pstat.executeQuery();
+
+			while (rs.next()) {
+				AdminStudentAttendedDTO dto = new AdminStudentAttendedDTO();
+				dto.setDay(rs.getString("출근날짜"));
+				dto.setIntime(rs.getString("출근시간"));
+				dto.setOuttime(rs.getString("퇴근시간"));
+				dto.setName(rs.getString("이름"));
+				dto.setStatus(rs.getString("상태"));
+				dto.setTitle(rs.getString("과정명"));
+
+				list.add(dto);
+
+			}
+			return list;
+
+		} catch (Exception e) {
+			System.out.println("dao : " + e.toString());
+		}
+
+		return null;
+	}
+
+///////////////////////////////////////////////////////////////////////////	
+
+	public ArrayList<AdminStudentAttendedDTO> year(String year) {
+
+		String sql = "SELECT" + "    TO_CHAR(a.intime,'yyyy-mm-dd') 출근날짜," + "    CASE"
+				+ "        WHEN TO_CHAR(a.intime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.intime,'hh24:mi')" + "    END AS 출근시간," + "    CASE"
+				+ "        WHEN TO_CHAR(a.outtime,'hh24:mi') LIKE '00:00' THEN '없음'"
+				+ "        ELSE TO_CHAR(a.outtime,'hh24:mi')" + "    END AS 퇴근시간,"
+				+ "    st.name AS 이름, a.status AS 상태, ct.title AS 과정명" + " FROM tblstudent st"
+				+ " INNER JOIN tbllearning l" + " ON l.studentseq = st.seq" + " INNER JOIN tblattended a"
+				+ " ON a.learningseq = l.seq" + " INNER JOIN tblcourse c" + " ON c.seq = l.courseseq"
+				+ " INNER JOIN tblcoursetitle ct" + " ON ct.seq = c.coursetitleseq"
+				+ " WHERE TO_CHAR(a.intime,'yyyy') = ?" + " ORDER BY 출근날짜";
+
+		try {
+
+			ArrayList<AdminStudentAttendedDTO> list = new ArrayList<AdminStudentAttendedDTO>();
+
+			pstat = conn.prepareStatement(sql);
+			pstat.setString(1, year);
+
+			ResultSet rs = pstat.executeQuery();
+
+			while (rs.next()) {
+				AdminStudentAttendedDTO dto = new AdminStudentAttendedDTO();
+				dto.setDay(rs.getString("출근날짜"));
+				dto.setIntime(rs.getString("출근시간"));
+				dto.setOuttime(rs.getString("퇴근시간"));
+				dto.setName(rs.getString("이름"));
+				dto.setStatus(rs.getString("상태"));
+				dto.setTitle(rs.getString("과정명"));
+
+				list.add(dto);
+
+			}
+			return list;
+
+		} catch (Exception e) {
+			System.out.println("dao : " + e.toString());
+		}
+
+		return null;
+	}
+////////////////////////////////////////////////////////////////	
+	public void management(String name, String day, String status) {
+
+		String st = "";
+		if (status.equals("1")) {
+			st = "출근";
+		} else if (status.equals("2")) {
+			st = "지각";
+		} else if (status.equals("3")) {
+			st = "조퇴";
+		} else if (status.equals("4")) {
+			st = "결석";
+		} else if (status.equals("5")) {
+			st = "병가";
+		} else if (status.equals("6")) {
+			st = "기타";
+		}
+
+		try {
+
+			String sql = "UPDATE tblattended SET status = ?"
+					+ "    WHERE learningseq = (SELECT l.seq FROM tblstudent s " + "        INNER JOIN tbllearning l "
+					+ "        ON s.seq = l.studentseq " + "        WHERE s.name = ?" + "        )"
+					+ "    AND TO_CHAR(intime,'yyyy-mm-dd') = ?";
+
+			pstat = conn.prepareStatement(sql);
+
+			pstat.setString(1, st);
+//			pstat.setString(2, getStudentSeq(name));
+			pstat.setString(2, name);
+			pstat.setString(3, day);
+
+			// 두번째 물음표를 seq로 바꾸기
+			int result = pstat.executeUpdate();
+			if (result == 1) {
+				System.out.println("업데이트에 성공했습니다.");
+			} else if (result == 0) {
+				System.out.println("업데이트에 실패했습니다.");
+			}
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+
+	}
+
+	private String getStudentSeq(String name) {
+		String result = "";
+
+		try {
+
+			String sql = "select seq from tblStudent where name = ?";
+
+			pstat = conn.prepareStatement(sql);
+
+			pstat.setString(1, name);
+
+			ResultSet rs = pstat.executeQuery();
+			rs.next();
+			result = rs.getString("seq");
+
+			rs.close();
+
+			return result;
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return null;
+	}
+
+	
+	
+
+
+}//class DAO 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

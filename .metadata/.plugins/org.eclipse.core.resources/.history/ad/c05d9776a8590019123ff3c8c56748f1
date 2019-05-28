@@ -1,0 +1,82 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Scanner;
+
+public class Ex04_Statement {
+	public static void main(String[] args) {
+		
+		
+		//고정값 INSERT > 입력값 INSERT : 동적 쿼리
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		Scanner scan = new Scanner(System.in);
+		
+		
+		try {
+			
+			conn = util.connect();
+			
+			stat = conn.createStatement();
+			
+			System.out.print("이름 : ");
+			String name = scan.nextLine();
+			
+			System.out.print("나이 : ");
+			String age = scan.nextLine();
+			
+			System.out.print("전화번호 : ");
+			String tel = scan.nextLine();
+			
+			System.out.print("주소 : ");
+			String address = scan.nextLine();
+			
+			String sql = String.format("INSERT INTO tblAddress (seq, name, age, tel, address, regdate) VALUES (address_seq.nextVal, '%s', %s, '%s', '%s', DEFAULT)");
+			
+			
+			conn.close();
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

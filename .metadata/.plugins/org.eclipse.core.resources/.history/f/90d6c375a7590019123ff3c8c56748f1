@@ -1,0 +1,44 @@
+package com.test.jdbc;
+
+public class Ex04_Statement {
+	public static void main(String[] args) {
+		
+		
+		//고정값 INSERT > 입력값 INSERT
+		
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

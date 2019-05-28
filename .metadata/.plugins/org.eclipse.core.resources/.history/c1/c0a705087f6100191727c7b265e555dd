@@ -1,0 +1,103 @@
+package com.project2.student;
+
+import java.util.Scanner;
+
+import com.project2.main.MainView;
+
+public class StudentView {
+	public static final int LOGIN = -1;
+	public static final int MAIN = 0;
+	public static final int INFO = 1;
+	public static final int LESSON = 2;
+	public static final int SUBJECT = 3;
+	public static final int ATTEND = 4;
+	public static final int INPUT = 5;
+	public static final int LEADER = 6;
+	public static final int ROOM = 7;
+	
+	
+	private MainView mview;
+	
+	public StudentView() {
+		mview = new MainView();
+	}
+
+	
+
+	public void loginSucess() {// 로그인성공
+		System.out.println("로그인 성공이야 !!!");
+	}
+
+	
+	public void title(int n) {
+		System.out.println("============================");
+		if(n==StudentView.LOGIN) { //회원의 개인정보 출력
+			System.out.println("[교육생 로그인 화면]");
+		}else if(n==StudentView.MAIN) {
+			System.out.println("[특정 교육생 메인화면]");
+		}else if(n==StudentView.INFO) {
+			System.out.println("[특정 교육생 개인정보 출력]");
+		}else if(n==StudentView.LESSON) {
+			System.out.println("[특정 교육생의 수강중인 or 했던 or 중도포기 과정 출력]");
+		}else if(n==StudentView.SUBJECT) {
+			System.out.println("[특정 교육생 과정의 과목들]");
+			System.out.println("과목1	출결	실기	필기	기간(선택? 필수?)");
+			System.out.println("과목2	출결	실기	필기");
+			System.out.println("아직 끝나지않은 과목이면 미완같이 뜨게 하기");
+		}else if(n==StudentView.ATTEND) {
+			System.out.println("[출결관리]");
+			System.out.println("날짜		입장	퇴장	상태	과정");
+			
+		}else if(n==StudentView.INPUT) {
+			System.out.println("[출석하기]");
+			
+		}else if(n==StudentView.LEADER) {
+			System.out.println("[스터디 예약하기]");
+			
+		}
+	}
+	
+	public void menu(int n) {
+		if(n == StudentView.LOGIN) {
+			System.out.println("올바른 입력이 아닙니다!!!");
+			System.out.println("Enter. 다시입력");
+			
+		}else if(n == StudentView.MAIN) {
+			menuMain();
+			System.out.println("5. 스터디 확인하기");
+		}else if(n == StudentView.LESSON) {
+			System.out.println("원하는 과정번호를 입력해주세요 ");
+			
+		}else if(n == StudentView.ATTEND) {
+			System.out.println("이동하길 원하는 페이지(번호)를 입력하세요");
+		}else if(n == StudentView.LEADER) {
+			menuMain();
+			System.out.println("5. 스터디 예약");
+		}else if(n == StudentView.ROOM) {
+			System.out.println("원하는 강의실 번호를 입력해주세요");
+		}
+		System.out.println("0. 뒤로가기");
+		System.out.println("============================");
+		System.out.print("선택 : ");
+	}
+
+	private void menuMain() {
+		System.out.println("1. 개인정보 출력");
+		System.out.println("2. 수강 과정");
+		System.out.println("	ㄴ출력 + 특정과정 선택시 점수(출결, 실기, 필기)");
+		System.out.println("3. 출결 보기");
+		System.out.println("4. 출석 하기");
+	}
+	
+	
+
+	public void pause() {
+		mview.pause();
+	}
+
+	public void pauseBack() {
+		mview.pauseBack();
+	}
+
+
+}

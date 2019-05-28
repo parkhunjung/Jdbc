@@ -1,0 +1,306 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Date;
+
+public class Ex05_Select {
+	public static void main(String[] args) {
+		
+		
+		
+//		m1();
+//		m2();
+//		m3();
+//		m4();
+//		m5();
+		m6();
+		
+	}
+
+	private static void m6() {
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+
+		try {
+
+			conn = util.connect();
+			stat = conn.createStatement();
+
+			String sql = String.format("SELECT name FROM tblInsa ORDER BY name ASC");
+			rs = stat.executeQuery(sql);
+			
+			rs.next();
+			System.out.println(rs.getString("name"));
+
+			rs.next();
+			System.out.println(rs.getString("name"));
+
+			
+			rs.close();
+			stat.close();
+			conn.close();
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+	}
+
+	private static void m5() {
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+
+		try {
+
+			conn = util.connect();
+			stat = conn.createStatement();
+
+			//Text Query : DB 클라이언트툴에서 작성해서 복붙
+			//조인할 때와 뷰 작성 시에 자주 발생 : 모호한 열이름 > 별칭으로 구분시킬것
+			String sql = String.format("SELECT m.name AS mname, w.name AS wname FROM tblMen m INNER JOIN tblWomen w ON m.name = w.couple where rownum = 1");
+			rs = stat.executeQuery(sql);
+
+			if(rs.next()) {
+				
+				//남자이름 출력
+				System.out.println(rs.getString("mname"));
+				//여자이름 출력
+				System.out.println(rs.getString("wname"));
+				
+			}
+			
+			
+			rs.close();
+			stat.close();
+			conn.close();
+
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		
+	}
+
+	private static void m4() {
+		
+		//seq입력 > 1개 레코드의 여러 컬럼 출력하기
+		//select * from tblinsa where num = 1001;
+		int num = 1001;
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			conn = util.connect();
+			stat = conn.createStatement();
+			
+			for(int i = num; i <= 1060; i++ ) {
+				
+				String sql = "SELECT a.*, basicpay + sudang AS total FROM tblInsa a WHERE num = " + num;
+				rs = stat.executeQuery(sql);
+				num++;
+				
+				if(rs.next()) {
+					
+					//컬럼 여러개
+					String name = rs.getString("name");
+					String buseo = rs.getString("buseo");
+					String jikwi = rs.getString("jikwi");
+					int basicpay = rs.getInt("basicpay");
+					int sudang = rs.getInt("sudang");
+					int total = rs.getInt("total");
+					
+					System.out.println(name);
+					System.out.println(buseo);
+					System.out.println(jikwi);
+					System.out.println(basicpay + sudang);
+					System.out.println(total);
+					
+					
+				} else {
+					System.out.printf("직원 번호 %s인 직원은 존재하지 않습니다.", num);
+				}
+			}
+			rs.close();
+			stat.close();
+			conn.close();
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		
+		
+	}
+
+	private static void m3() {
+		
+		//날짜값 반환
+		// > select > 1행 1열 반환
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			conn = util.connect();
+			stat = conn.createStatement();
+			
+			String sql = "select min(completedate) AS cdate FROM tblTodo";
+			
+			rs = stat.executeQuery(sql);
+			
+			if(rs.next()) {
+				
+				//오라클의 date형 > 자바의 어떤 자료형? : String(권장)
+//				Date cdate = rs.getDate("cdate");
+//				Date cdate = rs.getDate("cdate");
+//				System.out.printf("%tF %tT\r\n", cdate, cdate);
+				
+				String cdate = rs.getString("cdate");
+				System.out.println(cdate);
+				System.out.println(cdate.split(" ")[0]);
+				System.out.println(cdate.split(" ")[1]);
+				
+				
+				//[오라클] 		-> 		[자바]
+				//number		-> 		getInt() 추가 산술 연산 필요 O
+				//number		-> 		getDouble() 추가 산술 연산 필요 O
+				//number		-> 		getString() 추가 산술 연산 필요 X + 출력
+				//varchar2		-> 		getString()
+				//date			-> 		getString()
+				
+				
+				
+				
+			}
+			
+			rs.close();
+			stat.close();
+			conn.close();
+			
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+	}
+
+	private static void m2() {
+		
+		//단일값 반환
+		// > select > 1행 1열 반환
+		// 1번 주소록의 이름 가져오기
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+		
+		try {
+			
+			conn = util.connect();
+			stat = conn.createStatement();
+			
+			//ORA-00923: FROM keyword not found where expected => FROM 절을 빼먹었을때(오라클에러)
+			String sql = "SELECT name FROM tblAddress WHERE seq = 1";
+			rs = stat.executeQuery(sql);
+			
+			
+			//rs.next();
+			if (rs.next()) {
+				String name = rs.getString("name"); //결과 집합을 모두 소모했음 => 존재하지않는 행을 가르켰을때(자바에러)
+				System.out.println(name);
+				
+			} 
+			
+			rs.close();
+			stat.close();
+			conn.close();
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+	}
+
+	private static void m1() {
+		
+		//단일값 반환
+		// > select > 1행 1열 반환
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null; //select 결과 테이블 참조 객체(구조가 cursor와 유사함)
+		
+		try {
+		
+			conn = util.connect();
+			
+			
+			if(!conn.isClosed()) {
+				
+				stat = conn.createStatement();
+				String sql = "SELECT COUNT(*) AS 행수 FROM tblAddress";
+				
+				//반환값 없는 쿼리
+				//int result = stat.executeUpdate(sql);
+				
+				//반환값이 있는 쿼리
+				rs = stat.executeQuery(sql); // 반환값이 ResultSet 자료형임
+				
+				//rs : SELECT 결과값
+				rs.next(); // 커서를 아래로(다음 레코드로) 한칸 전진
+				
+				//rs.getXXX(특정컬럼)
+				//rs.getInt(index); : 결과셋의 컬럼 위치(index) 1부터 시작(***)
+				//rs.getInt("컬럼명"); : 결과셋의 컬럼명
+				
+//				int cnt = rs.getInt(1);
+//				int cnt = rs.getInt("행수"); // **************************압도적으로 많이쓴다.
+				String cnt = rs.getString("행수"); // ****************************
+				
+				//많이쓴다
+//				rs.getInt();
+//				rs.getDouble();
+//				rs.getString();
+				
+				
+				System.out.println("주소록 행 개수 : " + cnt);
+				
+				//자원해제
+				rs.close();
+				stat.close();
+				conn.close();
+				
+			} else {
+				System.out.println("관리자에게 연락하세요.");
+			}
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		
+		
+		
+	}
+}

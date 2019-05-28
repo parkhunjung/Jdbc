@@ -1,0 +1,30 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class Ex05_Select {
+	public static void main(String[] args) {
+		
+		
+		
+		m1();
+		
+		
+	}
+
+	private static void m1() {
+		
+		//단일값 반환
+		// > select > 1행 1열 반환
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null; //select 결과 테이블 참조 객체(구조가 cursor와 유사함)
+		
+		
+		
+		
+		
+	}
+}

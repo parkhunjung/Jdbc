@@ -1,0 +1,13 @@
+package project.starcraft.play;
+
+import java.util.Scanner;
+
+public class StarPlayController {
+	public static void main(String[] args) {
+		
+		private Scanner scan;
+		
+		
+		
+	}
+}

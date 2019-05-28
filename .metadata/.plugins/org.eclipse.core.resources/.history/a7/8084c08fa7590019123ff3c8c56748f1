@@ -1,0 +1,49 @@
+package com.test.jdbc;
+
+import java.sql.Connection;
+
+public class Ex04_Statement {
+	public static void main(String[] args) {
+		
+		
+		//고정값 INSERT > 입력값 INSERT
+		
+		DBUtil util = new DBUtil();
+		Connection conn = null;
+		
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

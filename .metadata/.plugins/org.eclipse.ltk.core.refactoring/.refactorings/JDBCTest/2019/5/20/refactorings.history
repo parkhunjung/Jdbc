@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;project.starcraft.play.StarPlay&apos; to &apos;StarPlayController&apos;&#x0D;&#x0A;- Original project: &apos;JDBCTest&apos;&#x0D;&#x0A;- Original element: &apos;project.starcraft.play.StarPlay&apos;&#x0D;&#x0A;- Renamed element: &apos;project.starcraft.play.StarPlayController&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;StarPlay&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;project.starcraft.play{StarPlay.java[StarPlay" matchStrategy="1" name="StarPlayController" qualified="false" references="true" similarDeclarations="false" stamp="1557735850413" textual="false" version="1.0"/>
+</session>

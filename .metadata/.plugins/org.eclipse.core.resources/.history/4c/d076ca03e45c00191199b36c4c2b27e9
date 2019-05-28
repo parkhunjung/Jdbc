@@ -1,0 +1,139 @@
+package com.project2.admin;
+
+import java.util.Scanner;
+
+public class AdminService implements AdminIService {
+
+	private AdminView view;
+	private Scanner scan;
+	private AdminSubService subService;
+
+	public AdminService() {
+//	      this.dao = new DAO();
+		this.view = new AdminView();
+		scan = new Scanner(System.in);
+		subService = new AdminSubService();
+	}
+
+	@Override
+	public void teacheraccountmng() {
+
+		view.title(AdminView.TEACHERACCOUNTMNG);
+		boolean loop = true;
+		while (loop) {
+
+			view.teachermenu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				subService.add();
+			else if (sel.equals("2"))
+				subService.edit();
+			else if (sel.equals("3"))
+				subService.list();
+			else
+				loop = false;
+		}
+
+	}
+
+	public void opencourse_subjectmng() {
+		// TODO Auto-generated method stub
+
+
+		boolean loop = true;
+
+		while (loop) {
+			view.title(AdminView.OPENCOURSE_SUBJECTMNG);
+
+			view.opencourseMenu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				subService.courseADD();
+			else if (sel.equals("2"))
+				subService.courseSET();
+			else if (sel.equals("3"))
+				subService.courseSEARCH();
+
+			else
+				loop = false;
+		}
+
+		view.pause();
+
+	}
+
+	@Override
+	public void studentmng() {
+
+		view.opencourse_studentmng();
+		boolean loop = true;
+		while (loop) {
+
+			view.studentmng();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				subService.student_Input();
+			else if (sel.equals("2"))
+				subService.student_Modified();
+			else if (sel.equals("3"))
+				subService.student_inquiry();
+			else
+				loop = false;
+		}
+
+	}
+
+	@Override
+	public void attendancemng() {
+
+		view.opencourse_attendancemng();
+		boolean loop = true;
+		while (loop) {
+
+			view.attendancemng();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				subService.attend_management();
+			else if (sel.equals("2"))
+				subService.attend_inquiry();
+			else
+				loop = false;
+		}
+
+	}
+
+	@Override
+	public void testmng_scorecheck() {
+
+		view.testmng_scoreCheckStart();
+
+		boolean loop = true;
+
+		while (loop) {
+
+			view.testmng_scoreCheckMenu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				subService.scoreADD();
+			else if (sel.equals("2"))
+				subService.scoreLIST();
+
+			else
+				loop = false;
+		}
+
+		view.end();
+
+	}
+
+}

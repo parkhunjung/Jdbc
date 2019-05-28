@@ -1,0 +1,36 @@
+package com.test.jdbc;
+
+public class Ex03_Statement {
+	
+	public static void main(String[] args) {
+		
+		
+		/*
+		
+		Statement 클래스
+		- 모든 SQL 구문을 실행하는 역할
+		- 스스로는 해당 쿼리를 어떤 DB에 질의?? > Connection 객체에 의존
+		
+		
+		Statement 클래스의 종류
+		1. Statement
+			- 기본 클래스
+			- Text Query 사용
+		2. PreparedStatement
+			- 개량 클래스
+			- Text Query 사용
+			
+		--------------------------
+			
+		3. CollableStatement
+			- 프로시저 전용 클래스
+			- 프로시저 사용
+			
+		
+		
+		
+		*/
+	}
+	
+	
+}

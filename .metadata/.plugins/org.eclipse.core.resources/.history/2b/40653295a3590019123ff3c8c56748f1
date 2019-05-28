@@ -1,0 +1,12 @@
+package com.test.jdbc;
+
+public class Ex03_Statement {
+	
+	public static void main(String[] args) {
+		
+		
+		
+	}
+	
+	
+}

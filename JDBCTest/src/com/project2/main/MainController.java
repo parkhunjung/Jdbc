@@ -1,0 +1,52 @@
+package com.project2.main;
+
+import java.util.Scanner;
+
+import com.project2.admin.AdminController;
+import com.project2.student.StudentController;
+import com.project2.teacher.TeacherController;
+
+public class MainController {
+
+	private static MainView mview;
+	private static Scanner scan;
+
+	static {
+
+		mview = new MainView();
+		scan = new Scanner(System.in);
+
+	}
+
+	public static void main(String[] args) {
+		StudentController student = new StudentController();
+		TeacherController teacher = new TeacherController();
+		AdminController admin = new AdminController();
+
+		mview.begin();
+
+		boolean loop = true;
+
+		while (loop) {
+
+			mview.menu();
+
+			String sel = scan.nextLine();
+
+			if (sel.equals("1"))
+				admin.subMain();
+			else if (sel.equals("2"))
+				teacher.subMain();
+			else if (sel.equals("3"))
+				student.subMain();
+			else if (sel.equals("0"))
+				loop = false;
+			else
+				System.out.println("잘못 입력하셨습니다. 다시 입력해주세요.");
+		}
+
+		mview.end();
+
+	}
+
+}
